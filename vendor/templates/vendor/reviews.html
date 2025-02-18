@@ -1,0 +1,87 @@
+{% extends 'vendor_base.html' %}
+{% load static %}
+
+{% block content1 %}
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 vh-100 overflow-auto">
+    <!-- Reviews Header -->
+    <div class="mt-4 border rounded shadow-sm bg-white">
+        <div class="p-3 bg-dark text-white rounded-top d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-0 text-white"><strong>Reviews</strong></h4>
+            </div>
+            <div>
+                <!-- Filter Form -->
+                <form method="get" class="form-inline">
+                    <label for="rating" class="mr-2">Filter by Rating:</label>
+                    <select name="rating" id="rating" class="form-control form-control-sm mr-2">
+                        <option value="">All</option>
+                        <option value="1" {% if request.GET.rating == "1" %}selected{% endif %}>★☆☆☆☆</option>
+                        <option value="2" {% if request.GET.rating == "2" %}selected{% endif %}>★★☆☆☆</option>
+                        <option value="3" {% if request.GET.rating == "3" %}selected{% endif %}>★★★☆☆</option>
+                        <option value="4" {% if request.GET.rating == "4" %}selected{% endif %}>★★★★☆</option>
+                        <option value="5" {% if request.GET.rating == "5" %}selected{% endif %}>★★★★★</option>
+                    </select>
+                    <label for="date" class="mr-2">Filter by Date:</label>
+                    <input type="date" name="date" id="date" class="form-control form-control-sm mr-2" value="{{ request.GET.date }}">
+                    
+                    <label for="product_name" class="mr-2">Filter by Product:</label>
+                    <input type="text" name="product_name" id="product_name" class="form-control form-control-sm mr-2" placeholder="Enter product name" value="{{ request.GET.product_name }}">
+
+                    <button type="submit" class="btn btn-primary btn-sm">Apply Filters</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Reviews List -->
+        <div class="p-3">
+            <div class="row">
+                {% for review in reviews %}
+                <div class="col-md-6 mb-3">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ review.product.name }}</h5>
+                            <h6 class="card-text"><strong>Reviewer:</strong> {{ review.user.username }}</h6>
+                            <p class="card-text"><strong>Rating:</strong> {{ review.get_rating_display }}</p>
+                            <p class="card-text"><strong>Review:</strong> {{ review.review }}</p>
+                            <p class="card-text"><strong>Date:</strong> {{ review.date|date:"M d, Y" }}</p>
+                            <p class="card-text"><strong>Reply:</strong> {{ review.reply|default:"No reply yet" }}</p>
+                            <div class="d-flex gap-2">
+                                <!-- Update Reply Button -->
+                                <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#updateReplyModal{{ review.id }}">
+                                    <i class="fas fa-edit"></i> Update Reply
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Update Reply Modal -->
+                <div class="modal fade" id="updateReplyModal{{ review.id }}" tabindex="-1" aria-labelledby="updateReplyModalLabel{{ review.id }}" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="updateReplyModalLabel{{ review.id }}">Update Reply</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="post" action="{% url 'vendor:update_replay' review.id %}">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label for="reply{{ review.id }}" class="form-label">Reply</label>
+                                        <textarea class="form-control" id="reply{{ review.id }}" name="replay" rows="3">{{ review.reply }}</textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Update Reply</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Include Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

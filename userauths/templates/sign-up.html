@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<title>{% block title %}Event Management{% endblock %}</title>
+
+{% block extra_css %}
+    <!-- Extra CSS specific to individual pages -->
+{% endblock %}
+
+{% include "layouts/header.html" %}
+
+{% block content %}
+  <!-- main content goes here -->
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card mt-5">
+                    <div class="card-body">
+                        <h2 class="card-title text-center">Sign Up</h2>
+                        <p class="text-center">Welcome to our store, create a free account today!</p>
+
+                        <form method="POST" action="">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="fullName">Full name *</label>
+                                {{ form.full_name }}
+                                {% if form.full_name.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.full_name.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">Email *</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.email.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="mobile">Mobile *</label>
+                                {{ form.mobile }}
+                                {% if form.mobile.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.mobile.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password">Password *</label>
+                                {{ form.password1 }}
+                                {% if form.password1.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.password1.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirmPassword">Confirm Password *</label>
+                                {{ form.password2 }}
+                                {% if form.password2.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.password2.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="accountType">Create Account As</label>
+                                {{ form.user_type }}
+                                {% if form.user_type.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.user_type.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="captcha">Captcha *</label>
+                                {{ form.captcha }}
+                                {% if form.captcha.errors %}
+                                    <div class="text-danger">
+                                        {% for error in form.captcha.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" id="agreeTerms" required>
+                                <label class="form-check-label" for="agreeTerms">By registering your details, you agree with our Terms & Conditions, and Privacy and Cookie Policy.</label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block">Sign Up</button>
+                            <div>
+                                <p>Already have an account? <a href="">Login</a></p>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+  
+{% block extra_js %}
+    <!-- Extra JS specific to individual pages -->
+{% endblock %}

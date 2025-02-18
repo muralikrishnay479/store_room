@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<title>{% block title %}Event Management{% endblock %}</title>
+
+
+{% block extra_css %}
+    <!-- Extra CSS specific to individual pages -->
+<link rel="stylesheet" href="{% static 'css/customer.css' %}">
+{% endblock %}
+
+{% block content %}
+  <!-- main content goes here -->
+ 
+
+<body>
+    <div class="container-fluid">
+      <div class="row">
+                    
+        {% include 'sidebar.html' %}
+        
+{%  block content1 %}
+
+
+
+{% endblock %}
+
+
+
+
+{% endblock %}
+  
+{% block extra_js %}
+    <!-- Extra JS specific to individual pages -->
+{% endblock %}

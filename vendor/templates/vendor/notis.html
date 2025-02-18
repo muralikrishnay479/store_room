@@ -1,0 +1,44 @@
+{% extends 'vendor_base.html' %}
+{% load static %}
+
+{% block content1 %}
+
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+    <h2 class="my-4">Notifications ({{ notis.count }})</h2>
+
+    <div class="container">
+        {% if notis %}
+        <div class="row">
+            {% for notification in notis %}
+            <div class="col-md-6 mb-3">
+                <div class="card shadow-sm {% if not notification.seen %}border-primary{% else %}border-secondary{% endif %}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <h5 class="card-title">{{ notification.type }}</h5>
+                            <small class="text-muted">{{ notification.date|date:"F j, Y, g:i a" }}</small>
+                        </div>
+                        <p class="card-text">{{ notification.message|default:"No message available" }}</p>
+                        <div class="mt-2">
+                            {% if not notification.seen %}
+                            <a href="{% url 'vendor:mark_noti_seen' notification.id %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-check-circle"></i> Mark as Read
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> You have no notifications.
+        </div>
+        {% endif %}
+    </div>
+</main>
+
+<!-- Bootstrap Icons (if needed) -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+{% endblock %}

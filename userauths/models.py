@@ -37,7 +37,6 @@ class Profile(models.Model):
     
     
     def save(self, *args, **kwargs):
-        email_username, _ = self.email.split("@")
         if not self.full_name:
             self.full_name=self.user.username
-        super(User, self).save(*args, **kwargs)
+        super(Profile, self).save(*args, **kwargs)

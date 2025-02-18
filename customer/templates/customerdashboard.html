@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<title>{% block title %}Notifications{% endblock %}</title>
+
+{% block extra_css %}
+    <!-- Extra CSS specific to individual pages -->
+    <link rel="stylesheet" href="{% static 'css/customer.css' %}">
+{% endblock %}
+
+{% block content %}
+  <!-- main content goes here -->
+<body>
+    <div class="container-fluid">
+      <div class="row">
+      <!-- Sidebar -->
+       {% include 'components/sidebar.html' %}
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+          <h2 class="my-4">Notifications</h2>
+          <!-- Notifications-->
+          
+        </main>
+      </div>
+    </div>
+</body>
+{% endblock %}
+  
+{% block extra_js %}
+    <!-- Extra JS specific to individual pages -->
+{% endblock %}

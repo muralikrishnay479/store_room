@@ -1,0 +1,48 @@
+<!-- templates/customer/components/sidebar.html -->
+<nav class="col-md-3 vh-100 col-lg-2 d-md-block bg-light sidebar">
+  <img src="{{ request.user.profile.image.url }}" alt="Profile Image" class="profile-img">
+  <h4 class="text-center">{{ request.user.profile.full_name }}</h4>
+  <p class="text-center">Customer ID: #{{ request.user.id }}</p>
+  <ul class="nav flex-column">
+    <li class="nav-item">
+      <a href="{% url 'vendor:vendor_dashboard' %}" class="nav-link border-top">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'vendor:products' %}" class="nav-link">
+        <i class="fas fa-box"></i> Products
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'vendor:orders' %}" class="nav-link">
+        <i class="fas fa-shopping-bag"></i> Orders
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'vendor:coupons' %}" class="nav-link">
+        <i class="fas fa-ticket-alt"></i> Coupons
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'vendor:reviews' %}" class="nav-link">
+        <i class="fas fa-star"></i> Reviews
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'vendor:notis' %}" class="nav-link">
+        <i class="fas fa-bell"></i> Notifications
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'vendor:profile' %}" class="nav-link">
+        <i class="fas fa-user"></i> Profile
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="{% url 'userauths:sign-out' %}" class="nav-link text-danger">
+        <i class="fas fa-sign-out-alt"></i> Log Out
+      </a>
+    </li>
+  </ul>
+</nav>

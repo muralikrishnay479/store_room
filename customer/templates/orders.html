@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<title>{% block title %}Orders{% endblock %}</title>
+
+{% block extra_css %}
+    <!-- Extra CSS specific to individual pages -->
+    <link rel="stylesheet" href="{% static 'css/customer.css' %}">
+{% endblock %}
+
+{% block content %}
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            {% include 'components/sidebar.html' %}
+            <!-- Main Content -->
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 vh-100 overflow-auto">
+    {% for order in orderlist %}
+    <div class="mt-4 border rounded shadow-sm bg-white">
+        <!-- Order Header -->
+        <div class="p-3 bg-dark text-white rounded-top d-flex justify-content-between align-items-center">
+            <div>
+                <h6 class="mb-0 text-white "><strong>Order Number: #{{ order.order_id }}</strong></h6>
+            </div>
+            <div>
+                <a href="{% url 'customer:order_detail' order.order_id %}" class="btn btn-primary btn-sm">View Order</a>
+            </div>
+        </div>
+
+        <!-- Order Items Table -->
+        <table class="table mb-0">
+            <tbody>
+                {% for item in order.order_items.all %}
+                <tr class="border-bottom">
+                    <td class="align-middle">
+                        <img src="{{ item.product.image.url }}" alt="Product Image" class="product-img img-thumbnail" style="width: 80px; height: 80px;">
+                    </td>
+                    <td class="align-middle" style="text-align:left;">
+                        <h6 class="mb-1"><strong>{{ item.product.name }}</strong></h6>
+                        <p class="mb-1 text-muted">Vendor: {{ item.product.vendor.profile.full_name }}</p>
+                        {% if item.Color %}
+                            <p class="mb-1 text-muted">Color: {{ item.Color }}</p>
+                        {% endif %}
+                        {% if item.Size %}
+                            <p class="mb-1 text-muted">Size: {{ item.Size }}</p>
+                        {% endif %}
+                        <p class="mb-0"><strong>₹{{ item.price }}</strong></p>
+                    </td>
+                    <td class="align-middle">
+                        <p class="mb-1">Status:</p>
+                        <p class="btn btn-sm btn-outline-info disabled">{{ order.order_status }}</p>
+                    </td>
+                    <td class="align-middle">
+                        <p class="mb-1">Payment Status:</p>
+                        <p class="btn btn-sm btn-outline-info disabled">{{ order.payment_status }}</p>
+                    </td>
+                    <td class="align-middle">
+                        <p class="mb-1">Order Date:</p>
+                        <p class="mb-0">{{ order.date|date:"M d, Y" }}</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Order Footer -->
+        <div class="p-3 bg-light rounded-bottom d-flex justify-content-between align-items-center">
+            <div>
+                <p class="mb-0">Payment Method: {{ order.payment_method }}</p>
+            </div>
+            <div>
+                <p class="mb-0"><strong>Total: ₹{{ order.total }}</strong></p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Pagination -->
+    <div class="row px-xl-5 mt-4">
+        <div class="col-12">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if orderlist.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1" aria-label="First">
+                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ orderlist.previous_page_number }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in orderlist.paginator.page_range %}
+                        {% if orderlist.number == num %}
+                            <li class="page-item active"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        {% elif num > orderlist.number|add:'-3' and num < orderlist.number|add:'3' %}
+                            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if orderlist.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ orderlist.next_page_number }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ orderlist.paginator.num_pages }}" aria-label="Last">
+                                <span aria-hidden="true">&raquo;&raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</main>
+        </div>
+    </div>
+</body>
+{% endblock %}
+
+{% block extra_js %}
+    <!-- Extra JS specific to individual pages -->
+{% endblock %}

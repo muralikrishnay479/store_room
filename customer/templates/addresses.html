@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<title>{% block title %}Addresses{% endblock %}</title>
+
+{% block extra_css %}
+    <!-- Extra CSS specific to individual pages -->
+    <style>
+      .address-card {
+          background: #fff;
+          border-radius: 10px;
+          padding: 20px;
+          margin-bottom: 20px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          transition: box-shadow 0.3s ease, transform 0.3s ease;
+      }
+      .address-card:hover {
+          box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+          transform: translateY(-2px);
+      }
+
+      .address-card .address-title {
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: #333;
+          margin-bottom: 10px;
+      }
+
+      .address-card .address-details {
+          font-size: 0.95rem;
+          color: #555;
+          margin-bottom: 10px;
+      }
+
+      .address-card .address-actions {
+          margin-top: 10px;
+      }
+
+      .address-card .address-actions .btn {
+          font-size: 0.9rem;
+          padding: 5px 10px;
+          margin-right: 5px;
+      }
+
+      /* Animation for address cards */
+      @keyframes fadeIn {
+          from {
+              opacity: 0;
+              transform: translateY(20px);
+          }
+          to {
+              opacity: 1;
+              transform: translateY(0);
+          }
+      }
+
+      .address-card {
+          animation: fadeIn 0.6s ease-out;
+      }
+    </style>
+{% endblock %}
+
+{% block content %}
+  <!-- main content goes here -->
+<body>
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Sidebar -->
+        {% include 'components/sidebar.html' %}
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+          <!-- Heading -->
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="my-4">Addresses</h2>
+            <a href="{% url 'customer:address_create' %}" class="btn btn-primary">
+              <i class="fas fa-plus"></i> Add New Address
+            </a>
+          </div>
+
+          <!-- List of Addresses -->
+          <div class="row">
+            {% for address in addresses %}
+            <div class="col-lg-4 col-md-6 col-sm-12">
+              <div class="address-card">
+                <div class="address-title">
+                  {{ address.full_name }}
+                </div>
+                <div class="address-details">
+                  <p>{{ address.address_location }}, {{ address.city }}</p>
+                  <p>{{ address.state }}, {{ address.country }} - {{ address.zip_code }}</p>
+                  <p>Mobile: {{ address.mobile }}</p>
+                  <p>Email: {{ address.email }}</p>
+                </div>
+                <div class="address-actions">
+                  <a href="{% url 'customer:address_detail' address.id %}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-edit"></i> Edit
+                  </a>
+                  <a href="{% url 'customer:delete_address' address.id %}" class="btn btn-danger btn-sm delete-address">
+                    <i class="fas fa-trash"></i> Delete
+                  </a>
+                </div>
+              </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+              <div class="alert alert-info">
+                You have no saved addresses.
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </main>
+      </div>
+    </div>
+</body>
+{% endblock %}
+  
+{% block extra_js %}
+    <!-- Extra JS specific to individual pages -->
+    <script>
+      // JavaScript for handling delete address confirmation
+      $(document).on("click", ".delete-address", function (e) {
+        e.preventDefault();
+        const url = $(this).attr("href");
+
+        Swal.fire({
+          title: "Are you sure?",
+          text: "You won't be able to revert this!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Yes, delete it!",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = url;
+          }
+        });
+      });
+    </script>
+{% endblock %}

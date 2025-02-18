@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<title>{% block title %}Create Address{% endblock %}</title>
+
+{% block extra_css %}
+    <!-- Extra CSS specific to individual pages -->
+    <style>
+      .address-form {
+          background: #fff;
+          border-radius: 10px;
+          padding: 20px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .address-form .form-group {
+          margin-bottom: 15px;
+      }
+
+      .address-form .form-group label {
+          font-weight: 600;
+          color: #333;
+      }
+
+      .address-form .form-group input {
+          width: 100%;
+          padding: 8px;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+      }
+
+      .address-form .form-group input:focus {
+          border-color: #007bff;
+          box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+      }
+
+      .address-form .btn-primary {
+          width: 100%;
+          padding: 10px;
+          font-size: 1rem;
+      }
+    </style>
+{% endblock %}
+
+{% block content %}
+  <!-- main content goes here -->
+<body>
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Sidebar -->
+        {% include 'components/sidebar.html' %}
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+          <!-- Heading -->
+          <h2 class="my-4">Create New Address</h2>
+
+          <!-- Address Form -->
+          <div class="address-form">
+            <form method="POST">
+              {% csrf_token %}
+              <div class="form-group">
+                <label for="full_name">Full Name</label>
+                <input type="text" id="full_name" name="full_name" required>
+              </div>
+              <div class="form-group">
+                <label for="mobile">Mobile</label>
+                <input type="text" id="mobile" name="mobile" required>
+              </div>
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+              </div>
+              <div class="form-group">
+                <label for="country">Country</label>
+                <input type="text" id="country" name="country" required>
+              </div>
+              <div class="form-group">
+                <label for="state">State</label>
+                <input type="text" id="state" name="state" required>
+              </div>
+              <div class="form-group">
+                <label for="city">City</label>
+                <input type="text" id="city" name="city" required>
+              </div>
+              <div class="form-group">
+                <label for="address_location">Address</label>
+                <input type="text" id="address_location" name="address_location" required>
+              </div>
+              <div class="form-group">
+                <label for="zip_code">Zip Code</label>
+                <input type="text" id="zip_code" name="zip_code" required>
+              </div>
+              <button type="submit" class="btn btn-primary">Save Address</button>
+            </form>
+          </div>
+        </main>
+      </div>
+    </div>
+</body>
+{% endblock %}

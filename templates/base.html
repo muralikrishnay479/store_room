@@ -9,8 +9,11 @@
     <meta content="Free HTML Templates" name="keywords">
     <meta content="Free HTML Templates" name="description">
 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <!-- Favicon -->
     <link href="{% static '/static/img/favicon.ico' %}" rel="icon">
+     <link rel="stylesheet" href="{% static 'css/customer.css' %}">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -34,6 +37,41 @@
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
 
+    <style>
+        .alert {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+    background-color: #FFD233;
+    color:rgb(216, 61, 14);
+    border: 1px solid #ffeeba;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+
+    </style>
+
     {% block extra_css %}
     <!-- Extra CSS specific to individual pages -->
     {% endblock %}
@@ -42,7 +80,7 @@
 <body>
     <header>
         <!-- Topbar Start -->
-        <div class="container-fluid">
+        {% comment %} <div class="container-fluid">
 
             <div class="col-lg-6 text-center text-lg-right">
                 <div class="d-inline-flex align-items-center d-block d-lg-none">
@@ -51,19 +89,19 @@
                         <span class="badge text-dark border border-dark rounded-circle"
                             style="padding-bottom: 2px;">0</span>
                     </a>
-                    <a href="" class="btn px-0 ml-2">
+                    <a href="{% url 'store:cart'%}" class="btn px-0 ml-2">
                         <i class="fas fa-shopping-cart text-dark"></i>
-                        <span class="badge text-dark border border-dark rounded-circle"
-                            style="padding-bottom: 2px;">0</span>
+                        <span class="badge text-dark border border-dark rounded-circle total_cart_items"
+                            style="padding-bottom: 2px;">{{total_cart_items}}</span>
                     </a>
                 </div>
             </div>
-        </div>
-        <div class="row align-items-center bg-light py-3 px-xl-5 d-none d-lg-flex">
+        </div> {% endcomment %}
+        {% comment %} <div class="row align-items-center bg-light py-3 px-xl-5 d-none d-lg-flex">
             <div class="col-lg-4">
                 <a href="" class="text-decoration-none">
-                    <span class="h1 text-uppercase text-primary bg-dark px-2">Multi</span>
-                    <span class="h1 text-uppercase text-dark bg-primary px-2 ml-n1">Shop</span>
+                    <span class="h1 text-uppercase text-primary bg-dark px-2">STORE</span>
+                    <span class="h1 text-uppercase text-dark bg-primary px-2 ml-n1">ROOM</span>
                 </a>
             </div>
             <div class="col-lg-4 col-6 text-left">
@@ -82,13 +120,12 @@
                 <p class="m-0">Customer Service</p>
                 <h5 class="m-0">+012 345 6789</h5>
             </div>
-        </div>
-        </div>
+        </div> {% endcomment %}
         <!-- Topbar End -->
 
 
         <!-- Navbar Start -->
-        <div class="container-fluid bg-dark mb-30">
+        <div class="container-fluid bg-dark mb-0">
             <div class="row px-xl-5">
                 <div class="col-lg-3 d-none d-lg-block">
                     <a class="btn d-flex align-items-center justify-content-between bg-primary w-100"
@@ -123,8 +160,8 @@
                 <div class="col-lg-9">
                     <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 py-lg-0 px-0">
                         <a href="" class="text-decoration-none d-block d-lg-none">
-                            <span class="h1 text-uppercase text-dark bg-light px-2">Multi</span>
-                            <span class="h1 text-uppercase text-light bg-primary px-2 ml-n1">Shop</span>
+                            <span class="h1 text-uppercase text-dark bg-light px-2">STORE</span>
+                            <span class="h1 text-uppercase text-light bg-primary px-2 ml-n1">ROOM</span>
                         </a>
                         <button type="button" class="navbar-toggler" data-toggle="collapse"
                             data-target="#navbarCollapse">
@@ -151,10 +188,10 @@
                                     <span class="badge text-secondary border border-secondary rounded-circle"
                                         style="padding-bottom: 2px;">0</span>
                                 </a>
-                                <a href="" class="btn px-0 ml-3">
+                                <a href="{% url 'store:cart'%}" class="btn px-0 ml-3">
                                     <i class="fas fa-shopping-cart text-primary"></i>
-                                    <span class="badge text-secondary border border-secondary rounded-circle"
-                                        style="padding-bottom: 2px;">0</span>
+                                    <span class="badge text-secondary border border-secondary rounded-circle total_cart_items"
+                                        style="padding-bottom: 2px;">{{total_cart_items}}</span>
                                 </a>
                             </div>
                         </div>
@@ -166,13 +203,25 @@
     </header>
 
     <main>
+
+    <!-- Messages -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <strong>{{ message }}</strong>
+        </div>
+    {% endfor %}
+{% endif %}
+
+
+
         {% block content %}
 
         {% endblock %}
     </main>
     <footer>
         <!-- Footer Start -->
-        <div class="container-fluid bg-dark text-secondary mt-5 pt-5">
+        <div class="container-fluid bg-dark text-secondary pt-5">
             <div class="row px-xl-5 pt-5">
                 <div class="col-lg-4 col-md-12 mb-5 pr-3 pr-xl-5">
                     <h5 class="text-secondary text-uppercase mb-4">Get In Touch</h5>
@@ -261,7 +310,12 @@
 
     <!-- Contact Javascript File -->
     <script src="{% static 'mail/jqBootstrapValidation.min.js' %}"></script>
+
+
     <script src="{% static 'mail/contact.js' %}"></script>
+
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{% static 'js/functions.js' %}"></script>
 
     <!-- Template Javascript -->
     <script src="{% static 'js/main.js' %}"></script>

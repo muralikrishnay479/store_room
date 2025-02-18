@@ -1,0 +1,358 @@
+{% extends 'vendor_base.html' %}
+{% load static %}
+{% block extra_css %}
+<style>
+    .variant-card {
+    background-color: rgba(13, 110, 253, 0.1) !important; /* Light blue */
+}
+
+.variant-item-card {
+    background-color: rgba(255, 193, 7, 0.1) !important; /* Light yellow */
+}
+
+</style>
+{% endblock %}
+
+{% block content1 %}
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 vh-100 overflow-auto">
+    <!-- Update Product Header -->
+    <div class="mt-3 border rounded shadow-sm bg-white">
+        <div class="p-3 bg-dark text-white rounded-top d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-0 text-white"><strong>Update Product</strong></h4>
+            </div>
+            <div>
+                <a href="{% url 'vendor:products' %}" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left"></i> Back to Products
+                </a>
+            </div>
+        </div>
+
+        <!-- Update Product Form -->
+        <div class="p-3">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row g-2">
+
+
+                    <!-- Product Name -->
+                    <div class="col-md-6 mb-2">
+                        <label for="name" class="form-label"><i class="fas fa-tag"></i> Product Name</label>
+                        <input type="text" class="form-control form-control-sm" id="name" name="name" value="{{ product.name }}" required>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="col-md-6 mb-2">
+                        <label for="category_id" class="form-label"><i class="fas fa-list"></i> Category</label>
+                        <select class="form-control form-control-sm" id="category_id" name="category_id" required>
+                            <option value="" disabled>Select a category</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" {% if product.category.id == category.id %}selected{% endif %}>{{ category.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="col-md-6 mb-2">
+                        <label for="price" class="form-label"><i class="fas fa-dollar-sign"></i> Price</label>
+                        <input type="number" class="form-control form-control-sm" id="price" name="price" value="{{ product.price }}" step="0.01" required>
+                    </div>
+
+                    <!-- Regular Price -->
+                    <div class="col-md-6 mb-2">
+                        <label for="regular_price" class="form-label"><i class="fas fa-dollar-sign"></i> Regular Price</label>
+                        <input type="number" class="form-control form-control-sm" id="regular_price" name="regular_price" value="{{ product.regular_price }}" step="0.01">
+                    </div>
+
+                    <!-- Stock -->
+                    <div class="col-md-6 mb-2">
+                        <label for="stock" class="form-label"><i class="fas fa-box"></i> Stock</label>
+                        <input type="number" class="form-control form-control-sm" id="stock" name="stock" value="{{ product.stock }}" required>
+                    </div>
+                    
+                    <!-- Shipping Cost -->
+                    <div class="col-md-6 mb-2">
+                        <label for="shipping" class="form-label"><i class="fas fa-truck"></i> Shipping Cost</label>
+                        <input type="number" class="form-control form-control-sm" id="shipping" name="shipping" value="{{ product.shipping }}" step="0.01">
+                    </div>
+
+
+                    <!-- Description -->
+                    <div class="col-md-6 mb-2">
+                        <label for="description" class="form-label"><i class="fas fa-align-left"></i> Description</label>
+                        <textarea class="form-control form-control-sm" id="description" name="description" rows="3" required>{{ product.description }}</textarea>
+                    </div>
+
+                    <!-- Product Image -->
+                    <div class="col-md-6 mb-2">
+                        <label for="image" class="form-label"><i class="fas fa-image"></i> Product Image</label>
+                        <input type="file" class="form-control form-control-sm" id="image" name="image" onchange="previewImage(event, 'product-image-preview')">
+                        {% if product.image %}
+                        <img id="product-image-preview" src="{{ product.image.url }}" alt="Product Image" class="img-thumbnail mt-2" style="width: 100px;">
+                        {% else %}
+                        <img id="product-image-preview" src="#" alt="Product Image" class="img-thumbnail mt-2" style="width: 100px; display: none;">
+                        {% endif %}
+                    </div>
+
+                </div>
+
+                <!-- Variants Section -->
+              <div class="mt-3 p-3 bg-light rounded">
+    <h5><i class="fas fa-layer-group"></i> Variants</h5>
+    <div id="variants-container" class="d-flex overflow-auto p-2" style="white-space: nowrap; gap: 10px; max-width: 100%;">
+        {% for variant in variants %}
+        <div class="variant-card mb-2 p-2 border rounded bg-white" style="min-width: 300px; max-width: 350px;">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6><i class="fas fa-cube"></i> Variant: {{ variant.name }}</h6>
+                <button type="button" class="btn btn-sm btn-danger" onclick="deleteVariant({{ product.id }}, {{ variant.id }})">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+            <input type="hidden" name="variant_id" value="{{ variant.id }}">
+            <div class="mb-2">
+                <label for="variant_title_{{ variant.id }}" class="form-label"><i class="fas fa-tag"></i> Variant Name</label>
+                <input type="text" class="form-control form-control-sm" id="variant_title_{{ variant.id }}" name="variant_title" value="{{ variant.name }}" required>
+            </div>
+            <div class="mb-2">
+                <h6><i class="fas fa-cubes"></i> Variant Items</h6>
+                <div class="row g-2" id="variant-items-container-{{ variant.id }}">
+                    {% for item in variant.variant_items.all %}
+                    <div class="col-12">
+                        <div class="variant-item-card mb-2 p-2 border rounded bg-white">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6><i class="fas fa-cube"></i> Item: {{ item.title }}</h6>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="deleteVariantItem({{ product.id }}, {{ variant.id }}, {{ item.id }})">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                            </div>
+                            <input type="hidden" name="item_id_{{ variant.id }}[]" value="{{ item.id }}">
+                            <div class="mb-2">
+                                <label for="item_title_{{ variant.id }}_{{ item.id }}" class="form-label"><i class="fas fa-tag"></i> Item Title</label>
+                                <input type="text" class="form-control form-control-sm" id="item_title_{{ variant.id }}_{{ item.id }}" name="item_title_{{ variant.id }}[]" value="{{ item.title }}" required>
+                            </div>
+                            <div class="mb-2">
+                                <label for="item_description_{{ variant.id }}_{{ item.id }}" class="form-label"><i class="fas fa-align-left"></i> Item Description</label>
+                                <textarea class="form-control form-control-sm" id="item_description_{{ variant.id }}_{{ item.id }}" name="item_description_{{ variant.id }}[]" rows="2">{{ item.content }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type="button" class="btn btn-sm btn-primary" onclick="addVariantItem({{ variant.id }})">
+                    <i class="fas fa-plus"></i> Add Item
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <button type="button" class="btn btn-sm btn-primary mt-2" onclick="addVariant()">
+        <i class="fas fa-plus"></i> Add Variant
+    </button>
+</div>
+
+                <!-- Gallery Images Section -->
+               <div class="mt-3 p-3 bg-light rounded">
+    <h5><i class="fas fa-images"></i> Gallery Images</h5>
+    <div class="row g-2" id="existing-gallery">
+        {% for image in gallery_images %}
+        <div class="col-md-3 mb-2">
+            <div class="card">
+                <img src="{{ image.image.url }}" class="card-img-top" alt="Gallery Image">
+                <div class="card-body p-2">
+                    <button type="button" class="btn btn-sm btn-danger w-100" onclick="deleteGalleryImage({{ image.id }})">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="mb-2">
+        <label for="gallery_images" class="form-label"><i class="fas fa-image"></i> Upload New Images</label>
+        <input type="file" class="form-control form-control-sm" id="gallery_images" name="image_[]" multiple accept="image/*" onchange="previewGalleryImages(event)">
+    </div>
+
+    <!-- Image Preview Section -->
+    <div id="gallery-preview" class="row g-2"></div>
+</div>
+
+
+
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary mt-3">
+                    <i class="fas fa-save"></i> Update Product
+                </button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<!-- Include Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Custom JavaScript for Dynamic Forms -->
+<script>
+    // Function to preview product image
+    function previewImage(event, previewId) {
+        const reader = new FileReader();
+        const preview = document.getElementById(previewId);
+        reader.onload = function() {
+            preview.src = reader.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    // Function to preview gallery images
+      function previewGalleryImages(event) {
+        let previewContainer = document.getElementById("gallery-preview");
+        previewContainer.innerHTML = ""; // Clear previous previews
+
+        let files = event.target.files;
+
+        if (files.length > 0) {
+            for (let i = 0; i < files.length; i++) {
+                let file = files[i];
+                let reader = new FileReader();
+
+                reader.onload = function (e) {
+                    let colDiv = document.createElement("div");
+                    colDiv.classList.add("col-md-3", "mb-2");
+
+                    colDiv.innerHTML = `
+                        <div class="card">
+                            <img src="${e.target.result}" class="card-img-top" alt="Preview Image">
+                            <div class="card-body p-2">
+                                <button type="button" class="btn btn-sm btn-danger w-100" onclick="removePreviewImage(this)">
+                                    <i class="fas fa-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                    `;
+
+                    previewContainer.appendChild(colDiv);
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+    }
+
+    function removePreviewImage(button) {
+        button.closest(".col-md-3").remove();
+    } 
+
+    // Function to add a new variant
+    function addVariant() {
+        const container = document.getElementById('variants-container');
+        const variantId = Date.now(); // Unique ID for the new variant
+        const variantCard = `
+            <div class="variant-card mb-2 p-2 border rounded bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6><i class="fas fa-cube"></i> New Variant</h6>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="this.parentElement.parentElement.remove()">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+                <input type="hidden" name="variant_id" value="">
+                <div class="mb-2">
+                    <label for="variant_title_${variantId}" class="form-label"><i class="fas fa-tag"></i> Variant Name</label>
+                    <input type="text" class="form-control form-control-sm" id="variant_title_${variantId}" name="variant_title" required>
+                </div>
+                <div class="mb-2">
+                    <h6><i class="fas fa-cubes"></i> Variant Items</h6>
+                    <div class="row g-2" id="variant-items-container-${variantId}"></div>
+                    <button type="button" class="btn btn-sm btn-primary" onclick="addVariantItem(${variantId})">
+                        <i class="fas fa-plus"></i> Add Item
+                    </button>
+                </div>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', variantCard);
+    }
+
+    // Function to add a new variant item
+    function addVariantItem(variantId) {
+        const container = document.getElementById(`variant-items-container-${variantId}`);
+        const itemId = Date.now(); // Unique ID for the new item
+        const itemCard = `
+            <div class="col-md-6">
+                <div class="variant-item-card mb-2 p-2 border rounded bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6><i class="fas fa-cube"></i> New Item</h6>
+                        <button type="button" class="btn btn-sm btn-danger" onclick="this.parentElement.parentElement.remove()">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                    <input type="hidden" name="item_id_${variantId}[]" value="">
+                    <div class="mb-2">
+                        <label for="item_title_${variantId}_${itemId}" class="form-label"><i class="fas fa-tag"></i> Item Title</label>
+                        <input type="text" class="form-control form-control-sm" id="item_title_${variantId}_${itemId}" name="item_title_${variantId}[]" required>
+                    </div>
+                    <div class="mb-2">
+                        <label for="item_description_${variantId}_${itemId}" class="form-label"><i class="fas fa-align-left"></i> Item Description</label>
+                        <textarea class="form-control form-control-sm" id="item_description_${variantId}_${itemId}" name="item_description_${variantId}[]" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', itemCard);
+    }
+
+    // Function to delete a variant
+    function deleteVariant(productId, variantId) {
+        if (confirm('Are you sure you want to delete this variant?')) {
+            fetch(`/vendor/delete_variant/${productId}/${variantId}/`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Variant deleted successfully') {
+                    location.reload(); // Reload the page to reflect changes
+                }
+            });
+        }
+    }
+
+    // Function to delete a variant item
+    function deleteVariantItem(productId, variantId, itemId) {
+        if (confirm('Are you sure you want to delete this item?')) {
+            fetch(`/vendor/delete_variant_item/${productId}/${variantId}/${itemId}/`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Variant item deleted successfully') {
+                    location.reload(); // Reload the page to reflect changes
+                }
+            });
+        }
+    }
+
+    // Function to delete a gallery image
+    function deleteGalleryImage(imageId) {
+        if (confirm('Are you sure you want to delete this image?')) {
+            fetch(`/vendor/delete_gallery_image/${imageId}/`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === 'Gallery image deleted successfully') {
+                    location.reload(); // Reload the page to reflect changes
+                }
+            });
+        }
+    }
+</script>
+{% endblock %}

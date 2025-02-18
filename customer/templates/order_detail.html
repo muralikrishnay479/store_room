@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<title>{% block title %}Order Detail{% endblock %}</title>
+
+
+{% block extra_css %}
+    <!-- Extra CSS specific to individual pages -->
+<link rel="stylesheet" href="{% static 'css/customer.css' %}">
+{% endblock %}
+
+{% block content %}
+  <!-- main content goes here -->
+ 
+
+<body>
+    <div class="container-fluid">
+      <div class="row">
+                    
+                    {% include 'components/sidebar.html' %}
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+          <h2 class="my-4">Order Detail</h2>
+          <div class="border rounded p-3 animated-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4>Order ID: #{{ order.order_id }}</h4>
+              <p class="btn btn-outline-info disabled">Status: {{ order.order_status }}</p>
+            </div>
+
+            <!-- Order Items -->
+            <div class="section-card animated-section">
+              <h5 class="section-title">Order Items</h5>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Details</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in order.order_items.all %}
+                  <tr>
+                    <td><img src="{{ item.product.image.url }}" alt="Product Image" class="product-img"></td>
+                    <td>
+                      <h6>{{ item.product.name }}</h6>
+                      <p>Vendor: {{ item.product.vendor.profile.full_name }}</p>
+                      {% if item.Color %}
+                        <p>Color: {{ item.Color }}</p>
+                      {% endif %}
+                      {% if item.Size %}
+                        <p>Size: {{ item.Size }}</p>
+                      {% endif %}
+                    </td>
+                    <td>₹{{ item.price }}</td>
+                    <td>{{ item.qty }}</td>
+                    <td>₹{{ item.total }}</td>
+                    <td>
+                      <a href="{% url 'customer:order_detail' order_id=order.order_id item_id=item.item_id %}">
+                        <i class="fas fa-eye eye-icon"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="section-card animated-section">
+              <h5 class="section-title">Order Summary</h5>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="detail-item">
+                    <strong>Subtotal:</strong> ₹{{ order.sub_total }}
+                  </div>
+                  <div class="detail-item">
+                    <strong>Shipping:</strong> ₹{{ order.shipping }}
+                  </div>
+                  <div class="detail-item">
+                    <strong>Tax:</strong> ₹{{ order.tax }}
+                  </div>
+                  <div class="detail-item">
+                    <strong>Service Fee:</strong> ₹{{ order.service_fee }}
+                  </div>
+                  {% if order.coupons.exists %}
+                    <div class="detail-item">
+                      <strong>Coupons Applied:</strong>
+                      <ul>
+                        {% for coupon in order.coupons.all %}
+                          <li>{{ coupon.code }} (Discount: ₹{{ coupon.discount }})</li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+                    <div class="detail-item">
+                      <strong>Total Savings:</strong> ₹{{ order.saved }}
+                    </div>
+                  {% endif %}
+                </div>
+                <div class="col-md-6">
+                  <div class="detail-item">
+                    <strong>Total:</strong> ₹{{ order.total }}
+                  </div>
+                  <div class="detail-item">
+                    <strong>Payment Method:</strong> {{ order.payment_method }}
+                  </div>
+                  <div class="detail-item">
+                    <strong>Payment Status:</strong> {{ order.payment_status }}
+                  </div>
+                  <div class="detail-item">
+                    <strong>Order Date:</strong> {{ order.date }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vendor Details -->
+            <div class="section-card animated-section">
+              <h5 class="section-title">Vendor Details</h5>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Vendor</th>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in order.order_items.all %}
+                  <tr>
+                    <td>{{ item.vendor.profile.full_name }}</td>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.qty }}</td>
+                    <td>₹{{ item.price }}</td>
+                    <td>₹{{ item.total }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Customer Address -->
+            <div class="section-card animated-section">
+              <h5 class="section-title">Customer Address</h5>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="detail-item">
+                    <strong>Full Name:</strong> {{ order.address.full_name }}
+                  </div>
+                  <div class="detail-item">
+                    <strong>Mobile:</strong> {{ order.address.mobile }}
+                  </div>
+                  <div class="detail-item">
+                    <strong>Email:</strong> {{ order.address.email }}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="detail-item">
+                    <strong>Address:</strong> {{ order.address.address }}
+                  </div>
+                  <div class="detail-item">
+                    <strong>City:</strong> {{ order.address.city }}
+                  </div>
+                  <div class="detail-item">
+                    <strong>State:</strong> {{ order.address.state }}
+                  </div>
+                  <div class="detail-item">
+                    <strong>Country:</strong> {{ order.address.country }}
+                  </div>
+                  <div class="detail-item">
+                    <strong>Zip Code:</strong> {{ order.address.zip_code }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+</body>
+{% endblock %}
+  
+{% block extra_js %}
+    <!-- Extra JS specific to individual pages -->
+{% endblock %}

@@ -1,12 +1,12 @@
-{% load static %}
 {% extends 'base.html' %}
+{% load static %}
 
 <title>{% block title %}Event Management{% endblock %}</title>
 
 {% block extra_css %}
     <!-- Extra CSS specific to individual pages -->
 {% endblock %}
-{% include "layouts/header.html" %}
+{% comment %} {% include "layouts/header.html" %} {% endcomment %}
 {% block content %}
   <!-- main content goes here -->
 {% endblock %}

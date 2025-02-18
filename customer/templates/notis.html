@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<title>{% block title %}Notifications{% endblock %}</title>
+
+{% block extra_css %}
+    <!-- Extra CSS specific to individual pages -->
+     <link rel="stylesheet" href="{% static 'css/customer.css' %}">
+    <style>
+      /* Notification card styling */
+      .notification-card {
+          background: #fff;
+          border-radius: 10px;
+          padding: 20px;
+          margin-bottom: 15px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          transition: box-shadow 0.3s ease, transform 0.3s ease;
+      }
+      .notification-card:hover {
+          box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+          transform: translateY(-2px);
+      }
+
+      .notification-card.unread {
+          background: #f8f9fa;
+          border-left: 4px solid #007bff;
+      }
+
+      .notification-card .notification-title {
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: #333;
+          margin-bottom: 5px;
+      }
+
+      .notification-card .notification-message {
+          font-size: 0.95rem;
+          color: #555;
+          margin-bottom: 10px;
+      }
+
+      .notification-card .notification-date {
+          font-size: 0.85rem;
+          color: #777;
+      }
+
+      .notification-card .notification-actions {
+          margin-top: 10px;
+      }
+
+      .notification-card .notification-actions .btn {
+          font-size: 0.9rem;
+          padding: 5px 10px;
+          margin-right: 5px;
+      }
+
+      /* Animation for notifications */
+      @keyframes fadeIn {
+          from {
+              opacity: 0;
+              transform: translateY(20px);
+          }
+          to {
+              opacity: 1;
+              transform: translateY(0);
+          }
+      }
+
+      .notification-card {
+          animation: fadeIn 0.6s ease-out;
+      }
+    </style>
+{% endblock %}
+
+{% block content %}
+  <!-- main content goes here -->
+<body>
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Sidebar -->
+        {% include 'components/sidebar.html' %}
+
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+          <h2 class="my-4">Notifications</h2>
+
+          <!-- Notifications List -->
+          <div class="notifications-list">
+            <div class="notifications-list">
+  {% for notification in notis %}
+  <div class="notification-card {% if not notification.seen %}unread{% endif %}">
+    <div class="notification-title">
+      {{ notification.type }}
+    </div>
+    <div class="notification-message">
+      {{ notification.message|default:"No message available" }}
+    </div>
+    <div class="notification-date">
+      {{ notification.date|date:"F j, Y, g:i a" }}
+    </div>
+    <div class="notification-actions">
+    <!-- Mark as Read Button -->
+    {% if not notification.seen %}
+    <a href="{% url 'customer:mark_noti_seen' notification.id %}" class="btn btn-primary btn-sm mark-as-read">
+        Mark as Read
+    </a>
+    {% endif %}
+    <!-- Delete Notification Button -->
+    {% comment %} <a href="{% url 'customer:delete_notification' notification.id %}" class="btn btn-danger btn-sm delete-notification">
+        Delete
+    </a> {% endcomment %}
+ </div>
+  </div>
+  {% empty %}
+  <div class="alert alert-info">
+    You have no notifications.
+  </div>
+  {% endfor %}
+ </div>
+          </div>
+</main>
+      </div>
+    </div>
+</body>
+{% endblock %}
+  
+{% block extra_js %}
+    <!-- Extra JS specific to individual pages -->
+ 
+   
+{% endblock %}

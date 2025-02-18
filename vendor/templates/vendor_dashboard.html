@@ -1,0 +1,171 @@
+{% extends 'vendor_base.html' %}
+{% load static %}
+
+{% block content1 %}
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+    <h2 class="my-4">Dashboard</h2>
+
+    <!-- Dashboard Cards -->
+    <div class="row">
+        <!-- Orders Card -->
+        <div class="col-md-4">
+            <div class="dashboard-card bg-light d-flex p-3">
+                <i class="fas fa-shopping-cart card-icon"></i>
+                <div class="card-details">
+                    <h5>{{ orders.count|default:"0" }}</h5>
+                    <p>New Orders</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue Card -->
+        <div class="col-md-4">
+            <div class="dashboard-card bg-light d-flex p-3">
+                <i class="fas fa-wallet card-icon"></i>
+                <div class="card-details">
+                    <h5>₹{{ revenue|default:"0.00"|floatformat:2 }}</h5>
+                    <p>Total Revenue</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Card -->
+        <div class="col-md-4">
+            <div class="dashboard-card bg-light d-flex p-3">
+                <i class="fas fa-box card-icon"></i>
+                <div class="card-details">
+                    <h5>{{ products.count|default:"0" }}</h5>
+                    <p>Total Products</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reviews Card -->
+        <div class="col-md-4">
+            <div class="dashboard-card bg-light d-flex p-3">
+                <i class="fas fa-star card-icon"></i>
+                <div class="card-details">
+                    <h5>{{ reviews.count|default:"0" }}</h5>
+                    <p>Total Reviews</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overall Ratings Card -->
+        <div class="col-md-4">
+            <div class="dashboard-card bg-light d-flex p-3">
+                <i class="fas fa-star-half-alt card-icon"></i>
+                <div class="card-details">
+                    <h5>{{ rating|default:"0.0"|floatformat:1 }}</h5>
+                    <p>Average Rating</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications Card -->
+        <div class="col-md-4">
+            <div class="dashboard-card bg-light d-flex p-3">
+                <i class="fas fa-bell card-icon"></i>
+                <div class="card-details">
+                    <h5>{{ notis.count|default:"0" }}</h5>
+                    <p>New Notifications</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Orders Section -->
+<div class="container mt-4">
+    <h4>Your Products({{ products.count}})</h4>
+    <div class="row justify-content-center">
+        {% for product in products %}
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3">
+                <div class="row g-0 align-items-center">
+                    <!-- Product Image -->
+                    <div class="col-md-4">
+                        <img src="{{ product.image.url }}" class="img-fluid rounded" alt="{{ product.name }}">
+                    </div>
+                    <!-- Product Details -->
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <!-- Star Rating -->
+                            <p class="text-warning mb-1">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= product.average_rating %}
+                                        <i class="fas fa-star"></i>  <!-- Full Star -->
+                                    {% else %}
+                                        <i class="far fa-star"></i>  <!-- Empty Star -->
+                                    {% endif %}
+                                {% endfor %}
+                            </p>
+
+                            <p class="card-text mb-1"><strong>Price:</strong> ${{ product.price }}</p>
+                            <p class="card-text mb-1"><strong>Rating:</strong> {{ product.average_rating|floatformat:1 }} Rating</p>
+                            <p class="card-text mb-1"><strong>Review:</strong> {{ product.reviews.count }} Reviews</p>
+                            <p class="card-text mb-2"><strong>Orders:</strong> {{ product.vendor_orders.all.count }} Orders</p>
+                            <!-- Action Buttons -->
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-success btn-sm"><i class="fas fa-eye"></i></button>
+                                <button class="btn btn-primary btn-sm"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+    <div class="mt-4">
+        <h4>Recent Orders</h4>
+        {% for order in orders %}
+        <div class="order-card mb-3">
+            <div class="order-header d-flex justify-content-between align-items-center p-3 bg-dark text-white">
+                <h6 class="mb-0">Order #{{ order.order_id }}</h6>
+                <a href="" class="btn btn-primary btn-sm">View Order</a>
+            </div>
+            <div class="order-body p-3">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Status:</strong> {{ order.order_status }}</p>
+                        <p><strong>Payment Status:</strong> {{ order.payment_status }}</p>
+                        <p><strong>Date:</strong> {{ order.date }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Total:</strong> ₹{{ order.total }}</p>
+                        <p><strong>Payment Method:</strong> {{ order.payment_method }}</p>
+                    </div>
+                </div>
+                <div class="order-items mt-3">
+                    <h6>Items:</h6>
+                    <ul class="list-group">
+                        {% for item in order.order_items.all %}
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="product-img">
+                                    <span class="ml-2">{{ item.product.name }}</span>
+                                </div>
+                                <div>
+                                    <span>₹{{ item.price }} x {{ item.qty }}</span>
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info">
+            No recent orders found.
+        </div>
+        {% endfor %}
+    </div>
+</main>
+{% endblock %}

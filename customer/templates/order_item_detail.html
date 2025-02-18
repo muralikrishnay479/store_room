@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<title>{% block title %}Order Item Detail{% endblock %}</title>
+
+{% block extra_css %}
+    <!-- Extra CSS specific to individual pages -->
+    <link rel="stylesheet" href="{% static 'css/customer.css' %}">
+{% endblock %}
+
+{% block content %}
+  <!-- main content goes here -->
+<body>
+    <div class="container-fluid">
+      <div class="row">
+      <!-- Sidebar -->
+       {% include 'components/sidebar.html' %}
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+          <h2 class="my-4">Order Item Detail</h2>
+          <div class="border rounded p-3 animated-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4>Order ID: #{{ order.order_id }}</h4>
+              <p class="btn btn-outline-info disabled">Status: {{ order.order_status }}</p>
+            </div>
+
+            <!-- Item Details -->
+            <div class="section-card animated-section">
+              <h5 class="section-title">Item Details</h5>
+              <div class="row">
+                <div class="col-md-4 text-center">
+                  <img src="{{ item.product.image.url }}" alt="Product Image" class="product-img">
+                </div>
+                <div class="col-md-8">
+                  <div class="detail-item">
+                    <strong>Product:</strong> {{ item.product.name }}
+                  </div>
+                  <div class="detail-item">
+                    <strong>Vendor:</strong> {{ item.product.vendor.profile.full_name }}
+                  </div>
+                  {% if item.Color %}
+                    <div class="detail-item">
+                      <strong>Color:</strong> {{ item.Color }}
+                    </div>
+                  {% endif %}
+                  {% if item.Size %}
+                    <div class="detail-item">
+                      <strong>Size:</strong> {{ item.Size }}
+                    </div>
+                  {% endif %}
+                  <div class="detail-item">
+                    <strong>Price:</strong> ₹{{ item.price }}
+                  </div>
+                  <div class="detail-item">
+                    <strong>Quantity:</strong> {{ item.qty }}
+                  </div>
+                  <div class="detail-item">
+                    <strong>Total:</strong> ₹{{ item.total }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tracking Details -->
+            <div class="section-card animated-section">
+              <h5 class="section-title">Tracking Details</h5>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="detail-item">
+                    <strong>Shipping Service:</strong> 
+                    {% if item.shipping_service %}
+                      {{ item.shipping_service }}
+                    {% else %}
+                      <span class="not-added">Not added yet</span>
+                    {% endif %}
+                  </div>
+                  <div class="detail-item">
+                    <strong>Tracking ID:</strong> 
+                    {% if item.tracking_id %}
+                      {{ item.tracking_id }}
+                    {% else %}
+                      <span class="not-added">Not added yet</span>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="detail-item">
+                    <strong>Order Status:</strong> {{ item.order_status }}
+                  </div>
+                  <div class="detail-item">
+                    <strong>Payment Status:</strong> {{ order.payment_status }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vendor Details -->
+            <div class="section-card animated-section">
+              <h5 class="section-title">Vendor Details</h5>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="detail-item">
+                    <strong>Vendor Name:</strong> {{ item.product.vendor.profile.full_name }}
+                  </div>
+                  <div class="detail-item">
+                    <strong>Vendor Email:</strong> {{ item.product.vendor.email }}
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="detail-item">
+                    <strong>Vendor Address:</strong> 
+                    {% if item.product.vendor.profile.address %}
+                      {{ item.product.vendor.profile.address }}
+                    {% else %}
+                      <span class="not-added">Not added yet</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+</body>
+{% endblock %}
+  
+{% block extra_js %}
+    <!-- Extra JS specific to individual pages -->
+{% endblock %}

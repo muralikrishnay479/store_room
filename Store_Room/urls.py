@@ -24,9 +24,11 @@ urlpatterns = [
     # path('', include('accounts.urls')), 
     path('', include('store.urls')), 
     path('', include('blog.urls')), 
-    path('', include('customer.urls')), 
+    path('customer/', include('customer.urls')), 
     path('', include('userauths.urls')), 
-    path('', include('vendor.urls')), 
+    path('vendor/', include('vendor.urls')),
+    path('captcha/', include('captcha.urls')),
+    path('reports/', include('reports.urls')), 
     # path('', include('store.urls')), 
     
     

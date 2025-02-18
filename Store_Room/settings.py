@@ -13,7 +13,15 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 
+from dotenv import load_dotenv
+
+
+load_dotenv()  # Load .env variables
+
+
 from environs import Env
+from django.contrib import messages
+
 env = Env()
 env.read_env()
 
@@ -30,8 +38,8 @@ SECRET_KEY = 'django-insecure-af28qvwu8y6nx-%7v_b11mwy+6mj&$6z$8#n)r)z2qol$tb(g#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-
+ALLOWED_HOSTS = []
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
 
 # Application definition
 
@@ -45,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'accounts',
     
     
@@ -53,6 +62,7 @@ INSTALLED_APPS = [
     'store',
     'userauths',
     'vendor',
+    'reports',
     
     'anymail',
     'captcha',
@@ -81,6 +91,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'store.context.default',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
@@ -156,6 +167,15 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
+MESSAGES_TAGS = {
+    messages.DEBUG: 'secondary',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning',
+    messages.ERROR: 'danger',  # Maps ERROR to Bootstrap's "alert-danger"
+}
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static") # //this is your static folder
 ]
@@ -169,7 +189,38 @@ AUTH_USER_MODEL = "userauths.User"
 
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
- 
+PAYPAL_CLIENT_ID = env("PAYPAL_CLIENT_ID")
+PAYPAL_SECRET_ID = env("PAYPAL_SECRET_ID")
+
+RAZORPAY_KEY_ID = env("RKI")
+RAZORPAY_KEY_SECRET = env("RKS")
+
+
+DJANGO_RECAPTCHA_PUBLIC_KEY=env("DRK")
+# print("DJANGO_RECAPTCHA_PUBLIC_KEY",DJANGO_RECAPTCHA_PUBLIC_KEY)
+DJANGO_RECAPTCHA_PRIVATE_KEY=env("DRPK")
+# print("DJANGO_RECAPTCHA_PRIVATE_KEY",DJANGO_RECAPTCHA_PRIVATE_KEY)
+
+ANYMAIL = {
+    "MAILGUN_API_KEY": os.environ.get("MPK"),
+    "MAILGUN_SENDER_DOMAIN": os.environ.get("MSD"),
+}
+
+FROM_EMAIL=env("FM")
+
+# print("FROM_EMAIL",FROM_EMAIL)
+EMAIL_BACKEND=env("EMAIL_BACKEND")
+# print("EMAIL_BACKEND",EMAIL_BACKEND)
+DEFAULT_FROM_EMAIL=env("DEFAULT_FROM_EMAIL")
+SERVER_EMAIL=env("SERVER_EMAIL")
+
+
+LOGOUT_REDIRECT_URL = "userauths:sign-in"
+LOGIN_URL = "userauths:sign-in"
+LOGIN_REDIRECT_URL = "store: /"
+
+
+
  
  
 # JAZZMIN_SETTINGS = {

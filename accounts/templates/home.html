@@ -3,6 +3,33 @@
 
 {% block content %}
   
-<h1>welcome to store room</h1>
+<style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
+    iframe {
+      border: none;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <iframe
+    title="Analysis"
+    width="1140"
+    height="541.25"
+    src="https://app.powerbi.com/reportEmbed?reportId=9018f5ec-28be-4d73-9075-13da58746beb&autoAuth=true&ctid=d783a3ac-1d29-4e31-8dba-5902c41a5774"
+    frameborder="0"
+    allowFullScreen="true">
+  </iframe>
+</body>
 
 {% endblock %}

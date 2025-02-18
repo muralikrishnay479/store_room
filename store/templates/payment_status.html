@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h1>Payment Status</h1>
+    <p>Order ID: {{ order.order_id }}</p>
+    <p>Total Amount: ₹{{ order.total }}</p>
+    <p>Payment Status: {{ payment_status|default:"Unknown" }}</p>
+    
+    {% if payment_status == "paid" %}
+        <div class="alert alert-success">
+            Your payment was successful! Thank you for your purchase.
+        </div>
+    {% elif payment_status == "failed" %}
+        <div class="alert alert-danger">
+            Your payment failed. Please try again.
+        </div>
+    {% else %}
+        <div class="alert alert-warning">
+            Payment status could not be determined.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

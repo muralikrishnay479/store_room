@@ -216,9 +216,9 @@ class Order(models.Model):
         max_digits=12, decimal_places=2, default=0.00, null=True, blank=True,
         help_text="Amount saved from discounts."
     )
-    # address = models.ForeignKey(
-    #     "customer.Address", on_delete=models.SET_NULL, null=True, blank=True
-    # )
+    address = models.ForeignKey(
+        "customer.Address", on_delete=models.SET_NULL, null=True, blank=True
+    )
     coupons = models.ManyToManyField(Coupon, blank=True)
     order_id = ShortUUIDField(length=6, max_length=25, alphabet="1234567890")
     payment_id = models.CharField(null=True, blank=True, max_length=1000)

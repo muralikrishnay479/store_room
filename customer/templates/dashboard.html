@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<title>{% block title %}Event Management{% endblock %}</title>
+
+
+{% block extra_css %}
+    <!-- Extra CSS specific to individual pages -->
+<link rel="stylesheet" href="{% static 'css/customer.css' %}">
+{% endblock %}
+
+{% block content %}
+  <!-- main content goes here -->
+ 
+
+<body>
+    <div class="container-fluid">
+      <div class="row">
+                    
+                    {% include 'components/sidebar.html' %}
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+          <h2 class="my-4">Dashboard</h2>
+          <div class="row">
+            <div class="col-md-4">
+              <div class="dashboard-card bg-light d-flex p-3">
+                <i class="fas fa-shopping-cart card-icon"></i>
+                <div class="card-details">
+                  {% if orders.count %}
+                    <h5>{{ orders.count }}</h5>
+                  {% else %}
+                    <h5>0</h5>
+                  {% endif %}
+                  <p>Orders Due</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="dashboard-card bg-light d-flex p-3">
+                <i class="fas fa-wallet card-icon"></i>
+                <div class="card-details">
+                  {% if total_spent %}
+                    <h5>₹{{ total_spent|floatformat:2 }}</h5>
+                  {% else %}
+                    <h5>₹0.00</h5>
+                  {% endif %}
+                  <p>Total Spent</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="dashboard-card bg-light d-flex p-3">
+                <i class="fas fa-bell card-icon"></i>
+                <div class="card-details">
+                  {% if notis.count %}
+                    <h5>{{ notis.count }}</h5>
+                  {% else %}
+                    <h5>0</h5>
+                  {% endif %}
+                  <p>New Notifications</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {% for order in orders %}
+          <div class="mt-4 border rounded">
+            <div>
+              <div class="pl-3 bg-dark border-bottom rounded d-flex justify-content-between align-items-center align-content-center">
+                <div class="d-inline-flex align-content-center align-items-center">
+                  <h6 class="p-content f1"><strong class="ml-2 color-light">Order Number: #{{ order.order_id }}</strong></h6>
+                </div>
+                <div>
+                  <a href="{% url 'customer:order_detail' order.order_id %}" class="btn btn-primary">View Order</a>
+                </div>
+              </div>
+            </div>
+            <table class="table mb-0">
+              <tbody style="text-align:center">
+                {% for item in order.order_items.all %}
+                <tr>
+                  <td><img src="{{ item.product.image.url }}" alt="Product Image" class="product-img"></td>
+                  <td style="text-align:left;">
+                    <h6 class="p-content f1"><strong class="ml-2">{{ item.product.name }}</strong></h6>
+                    <p>Vendor: {{ item.product.vendor.profile.full_name }}</p>
+                    {% if item.Color %}
+                      <p>Color: {{ item.Color }}</p>
+                    {% endif %}
+                    {% if item.Size %}
+                      <p>Size: {{ item.Size }}</p>
+                    {% endif %}
+                    <p><strong>₹{{ item.price }}</strong></p>
+                  </td>
+                  <td>
+                    <p>Status:</p>
+                    <p class="btn btn-outline-info disabled">{{ order.order_status }}</p>
+                  </td>
+                  <td>
+                    <p>Payment Status:</p>
+                    <p class="btn btn-outline-info disabled">{{ order.payment_status }}</p>
+                  </td>
+                  <td>
+                    <p>Order Date:</p>
+                    <p>{{ order.date }}</p>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <div class="bg-light border-bottom rounded d-flex justify-content-between align-items-center align-content-center">
+              <div>
+                <p>Payment Method: {{ order.payment_method }}</p>
+              </div>
+              <div>
+                <p><strong>Total: ₹{{ order.total }}</strong></p>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </main>
+      </div>
+    </div>
+</body>
+{% endblock %}
+  
+{% block extra_js %}
+    <!-- Extra JS specific to individual pages -->
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends 'vendor_base.html' %}
+{% load static %}
+
+{% block content1 %}
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 vh-100 overflow-auto">
+    <!-- Create Product Header -->
+    <div class="mt-4 border rounded shadow-sm bg-white">
+        <div class="p-3 bg-dark text-white rounded-top d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 text-white"><strong>Create Product</strong></h4>
+            <a href="{% url 'vendor:products' %}" class="btn btn-secondary btn-sm">Back to Products</a>
+        </div>
+
+        <!-- Create Product Form -->
+        <div class="p-3">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row">
+                    <!-- Product Name -->
+                    <div class="col-md-6 mb-3">
+                        <label for="name" class="form-label">Product Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="col-md-6 mb-3">
+                        <label for="category_id" class="form-label">Category</label>
+                        <select class="form-control" id="category_id" name="category_id" required>
+                            <option value="" disabled selected>Select a category</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="col-md-6 mb-3">
+                        <label for="price" class="form-label">Price</label>
+                        <input type="number" class="form-control" id="price" name="price" step="0.01" required>
+                    </div>
+
+                    <!-- Regular Price -->
+                    <div class="col-md-6 mb-3">
+                        <label for="regular_price" class="form-label">Regular Price</label>
+                        <input type="number" class="form-control" id="regular_price" name="regular_price" step="0.01">
+                    </div>
+
+                    <!-- Shipping Cost -->
+                    <div class="col-md-6 mb-3">
+                        <label for="shipping" class="form-label">Shipping Cost</label>
+                        <input type="number" class="form-control" id="shipping" name="shipping" step="0.01">
+                    </div>
+
+                    <!-- Stock -->
+                    <div class="col-md-6 mb-3">
+                        <label for="stock" class="form-label">Stock</label>
+                        <input type="number" class="form-control" id="stock" name="stock" required>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="col-md-12 mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
+                    </div>
+
+                    <!-- Product Image (Moved to Bottom) -->
+                    <div class="col-md-8 mb-3">
+                        <label for="image" class="form-label">Product Image</label>
+                        <input type="file" class="form-control" id="image" name="image" accept="image/*" required onchange="previewImage(event)">
+                        <div class="mt-2">
+                            <img id="image-preview" src="" alt="Image Preview" class="img-fluid rounded shadow-sm d-none" style="max-width: 200px;">
+                        </div>
+                    </div>
+                    <div  class="col-md-4 mt-3 text-right">
+                     <button type="submit" class="btn btn-primary mt-3 ml-3">Create Product</button>
+                     </div>
+                </div>
+
+                <!-- Submit Button -->
+               
+            </form>
+        </div>
+    </div>
+</main>
+
+<!-- JavaScript for Image Preview -->
+<script>
+function previewImage(event) {
+    const input = event.target;
+    const preview = document.getElementById("image-preview");
+
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function (e) {
+            preview.src = e.target.result;
+            preview.classList.remove("d-none"); // Show the image preview
+        };
+        
+        reader.readAsDataURL(input.files[0]); // Convert image file to base64 string
+    }
+}
+</script>
+{% endblock %}

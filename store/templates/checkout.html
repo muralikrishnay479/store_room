@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<title>{% block title %}Event Management{% endblock %}</title>
+
+{% block extra_css %}
+    <!-- Extra CSS specific to individual pages -->
+{% endblock %}
+{% block content %}
+  <!-- main content goes here -->
+
+
+    <!-- Breadcrumb Start -->
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-12">
+                <nav class="breadcrumb bg-light mb-30">
+                    <a class="breadcrumb-item text-dark" href="#">Home</a>
+                    <a class="breadcrumb-item text-dark" href="#">Shop</a>
+                    <span class="breadcrumb-item active">Checkout</span>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <!-- Breadcrumb End -->
+
+
+    <!-- Checkout Start -->
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-lg-8">
+                 <table class="table table-light table-borderless table-hover text-center mb-0">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Products</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                            <th>Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody class="align-middle">
+                        {% for item in order.order_items.all  %}
+                        <tr  class="item_div_{{ item.id }}" data-item_id="{{ item.id }}">
+                            <td class="align-middle">
+                                <img src="{{ item.product.image.url }}" alt="" style="width: 50px;"> 
+                                {{ item.product.name }}
+                            </td>
+                            <td class="align-middle">₹{{ item.product.price }}</td>
+                            <td class="align-middle">
+                               <h6>{{ item.qty }}</h6>
+                            </td>
+                            <td class="align-middle">₹{{ item.sub_total }}</td>
+                            <td class="align-middle">
+                                <a class="btn btn-sm btn-danger delete_cart_item"  
+                                        data-item_id="{{ item.id }}" 
+                                        data-product_id="{{ item.product.id }}">
+                                    <i class="fa fa-times"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                 <div class="mt-5">
+                    <h5 class="section-title position-relative text-uppercase mb-3">
+                        <span class="bg-secondary pr-3">Shipping Addresses</span>
+                    </h5>
+                    <div class="row">
+                        
+                        <div class="col-md-12 mb-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ order.address.full_name }}</h5>
+                                    <p class="card-text"><strong>Mobile:</strong> {{ order.address.mobile }}</p>
+                                    <p class="card-text"><strong>Email:</strong> {{ order.address.email }}</p>
+                                    <p class="card-text"><strong>Country:</strong> {{ order.address.country }}</p>
+                                    <p class="card-text"><strong>State:</strong> {{ order.address.state }}</p>
+                                    <p class="card-text"><strong>City:</strong> {{ order.address.city }}</p>
+                                    <p class="card-text"><strong>Address:</strong> {{ order.address.address }}</p>
+                                    <p class="card-text"><strong>Zip Code:</strong> {{ order.address.zip_code }}</p>
+                                </div>
+
+                                <div class="custom-control custom-radio custom-control-inline ml-3 mb-3">
+                                    <input class="custom-control-input" type="radio" name="address" id="address{{ address.id }}" value="{{ address.id }}">
+                                    <label class="custom-control-label text-info fs-4 mb-2" style="font-size: 1.3rem;" for="address{{ address.id }}">
+                                        Select this address
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Order Total</span></h5>
+                <div class="bg-light p-30 mb-5">
+                    <div class="border-bottom">
+                        <h6 class="mb-3">Products</h6>
+
+                        {% for item in order.order_items.all %}
+                        <div class="d-flex justify-content-between">
+                            <p>{{item.product.name}}</p>
+                            <p>₹{{item.price}}</p>
+                        </div>
+                        {% endfor %}
+                       
+                    </div>
+                    <div class="border-bottom pt-3 pb-2">
+                        <div class="d-flex justify-content-between mb-3">
+                            <h6>Subtotal</h6>
+                            <h6>₹{{order.sub_total}}</h6>
+                        </div>
+                        <div class="d-flex justify-content-between pb-2">
+                            <h6 class="font-weight-medium">Shipping</h6>
+                            <h6 class="font-weight-medium">₹{{order.shipping}}</h6>
+                        </div>
+                        <div class="d-flex justify-content-between pb-2">
+                            <h6 class="font-weight-medium">Tax</h6>
+                            <h6 class="font-weight-medium">₹{{order.tax}}</h6>
+                        </div>
+                        <div class="d-flex justify-content-between pb-2">
+                            <h6 class="font-weight-medium">Service Fee</h6>
+                            <h6 class="font-weight-medium">₹{{order.service_fee}}</h6>
+                        </div>
+                      {% for coupon in order.coupons.all %}
+                        <div class="d-flex justify-content-between pb-2">
+                            <h6 class="font-weight-medium text-primary">Coupon Applied ({{ coupon.code }})</h6>
+                            <h6 class="font-weight-medium text-primary">-{{ coupon.discount }}%</h6>
+                        </div>
+                        {% endfor %}
+
+                    </div>
+                    <div class="pt-2">
+                        <div class="d-flex justify-content-between mt-2">
+                            <h5>Total</h5>
+                            <h5>₹{{order.total}}</h5>
+                        </div>
+                    </div>
+                </div>
+                 <form class="mb-30" action="{% url 'store:coupon_apply' order.order_id %}" method="post">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <input type="text" class="form-control border-0 p-4" name="coupon_code" placeholder="Coupon Code">
+                        <div class="input-group-append">
+                            <button  type="submit" class="btn btn-primary">Apply Coupon</button>
+                        </div>
+                    </div>
+                </form>
+                <div class="mb-5">
+<div class="mb-5">
+    <h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Payment</span></h5>
+    <div class="bg-light p-30">
+    <form action="{% url 'store:razorpay_payment_verify' order.order_id %}?payment_method=RazorPay" method="POST">
+        {% csrf_token %}
+        <script
+            src="https://checkout.razorpay.com/v1/checkout.js"
+            data-key="{{ RAZORPAY_KEY_ID }}"
+            data-amount="{{ amount_in_inr }}"
+            data-currency="INR"
+            data-order_id="{{ razorpay_order_id }}"
+            data-name="Your Company"
+            data-description="E-commerce Order"
+            data-image="https://your_logo_url.com/logo.png"
+            data-theme.color="#F37254">
+        </script>
+        <button type="submit" id="razorpay-payment" class="btn rounded text-primary w-100 mb-3 bg-primary">
+            <img style="width: 150px" src="https://upload.wikimedia.org/wikipedia/commons/8/89/Razorpay_logo.svg" />
+        </button>
+    </form>
+    <div id="paypal-button-container"></div>
+</div>
+</div>
+                </div>
+         </div>
+    </div>
+</div>
+    <!-- Checkout End -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
+
+
+<!-- razorpay -->
+
+
+<script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=USD"></script>
+<script>
+  function initPayPalButton() {
+    paypal.Buttons({
+      style: {
+        shape: 'rect',
+        color: 'gold',
+        layout: 'vertical',
+        label: 'paypal',
+      },
+      createOrder: function (data, actions) {
+        return actions.order.create({
+          purchase_units: [{
+            amount: {
+              currency_code: "USD",
+              value: '{{ order.total }}'
+            }
+          }]
+        });
+      },
+      onApprove: function (data, actions) {
+        return actions.order.capture().then(function (orderData) {
+          console.log("Capture result", orderData, JSON.stringify(orderData, null, 2));
+
+          const element = document.getElementById("paypal-button-container")
+          alert('Transaction completed successfully!');
+          element.innerHTML = "";
+          element.innerHTML = "<h5> verifying Payment .......</h5>";
+          window.location.href = `/paypal_payment_verify/{{ order.order_id }}/?transaction_id=${orderData.id}`;
+        });
+      },
+      onError: function (err) {
+        console.log("Error occurred:", err);
+        alert('An error occurred during the transaction.');
+      }
+    }).render('#paypal-button-container'); // Render into the div, not a button
+  }
+  initPayPalButton();
+</script>
+{% endblock %}
+  
+{% block extra_js %}
+    <!-- Extra JS specific to individual pages -->
+{% endblock %}
