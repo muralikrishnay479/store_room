@@ -1,0 +1,8 @@
+Hello Admin,
+
+A new user with the email {{ email }} attempted to register, but their email is unauthorized.
+
+Please review and take necessary action.
+
+Thanks,
+The {{ site_name }} Team

@@ -1,0 +1,6 @@
+Hello {{ user.full_name }},
+
+Welcome to our site! Thank you for registering.
+
+Thanks,
+The {{ site_name }} Team

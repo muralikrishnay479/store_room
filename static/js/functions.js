@@ -3,7 +3,7 @@ $(document).ready(function() {
         toast: true,
         position: 'top-end',
         showConfirmButton: false,
-        timer: 20000,
+        timer: 2000,
         timerProgressBar: true,
     });
 
@@ -270,7 +270,7 @@ $(document).ready(function() {
         const item_id = button.attr("data-item_id");
     
         $.ajax({
-            url: `/remove_from_wishlist/${item_id}/`,
+            url: `/customer/remove_from_wishlist/${item_id}/`,
             method: "GET", // Ensure this matches your view's expected method
             beforeSend: function () {
                 button.html("<i class='fas fa-spinner fa-spin'></i>");
@@ -335,7 +335,7 @@ $(document).ready(function() {
     
             // AJAX request to add product to wishlist
             $.ajax({
-                url: `add_to_wishlist/${product_id}/`, // URL to your Django view
+                url:`customer/add_to_wishlist/${product_id}/`, // URL to your Django view
                 method: "GET", // Use GET or POST based on your backend implementation
                 dataType: "json", // Expect JSON response
                 success: function (response) {

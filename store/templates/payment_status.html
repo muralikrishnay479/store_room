@@ -1,25 +1,62 @@
 {% extends 'base.html' %}
 {% load static %}
+{% block title %}Payment Status{% endblock %}</title>
+{% block extra_css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1>Payment Status</h1>
-    <p>Order ID: {{ order.order_id }}</p>
-    <p>Total Amount: ₹{{ order.total }}</p>
-    <p>Payment Status: {{ payment_status|default:"Unknown" }}</p>
-    
-    {% if payment_status == "paid" %}
-        <div class="alert alert-success">
-            Your payment was successful! Thank you for your purchase.
+<div class="container py-5 vh-100">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-body text-center p-4">
+                    {% if order.payment_status == "Paid" %}
+                        <div class="text-success mb-3">
+                            <i class="fas fa-check-circle fa-4x"></i>
+                        </div>
+                        <h2 class="text-success">Payment Successful!</h2>
+                        <p class="text-muted">Thank you for your purchase.</p>
+
+                    {% elif order.payment_status == "Failed" or order.payment_status == "Processing" %}
+                        <div class="text-danger mb-3">
+                            <i class="fas fa-times-circle fa-4x"></i>
+                        </div>
+                        <h2 class="text-danger">Payment Failed</h2>
+                        <p class="text-muted">Your payment could not be processed. Please try again.</p>
+
+                    {% else %}
+                        <div class="text-warning mb-3">
+                            <i class="fas fa-exclamation-circle fa-4x"></i>
+                        </div>
+                        <h2 class="text-warning">Payment Status Unknown</h2>
+                        <p class="text-muted">We couldn't determine your payment status.</p>
+                        
+                    {% endif %}
+
+                    <div class="border p-3 rounded bg-light mt-3">
+                        <p><strong>Order ID:</strong> {{ order.order_id }}</p>
+                        <p><strong>Total Amount:</strong> ₹{{ order.total }}</p>
+                        <p><strong>Payment Status:</strong> 
+                            <span class="badge {% if order.payment_status == 'paid' %}bg-success{% elif order.payment_status == 'Failed' %}bg-danger{% else %}bg-warning{% endif %}">
+                                {{ order.payment_status|default:"Unknown" }}
+                            </span>
+                        </p>
+                        <p><strong>Payment Method:</strong> {{ order.payment_method }}</p>
+                    </div>
+
+                    {% if order.payment_status == "Failed" or order.payment_status == "Processing" %}
+                        <a href="{% url 'store:checkout' order.order_id %}" class="btn btn-danger mt-4">
+                            <i class="fas fa-redo"></i> Retry Payment
+                        </a>
+                    {% else %}
+                        <a href="{% url 'store:index' %}" class="btn btn-primary mt-4">
+                            <i class="fas fa-shopping-cart"></i> Continue Shopping
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-    {% elif payment_status == "failed" %}
-        <div class="alert alert-danger">
-            Your payment failed. Please try again.
-        </div>
-    {% else %}
-        <div class="alert alert-warning">
-            Payment status could not be determined.
-        </div>
-    {% endif %}
+    </div>
 </div>
 {% endblock %}

@@ -13,7 +13,7 @@
 
     <!-- Favicon -->
     <link href="{% static '/static/img/favicon.ico' %}" rel="icon">
-     <link rel="stylesheet" href="{% static 'css/customer.css' %}">
+    <link rel="stylesheet" href="{% static 'css/customer.css' %}">
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -39,37 +39,46 @@
 
     <style>
         .alert {
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 5px;
-    font-weight: bold;
-}
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
 
-.alert-info {
-    background-color: #d1ecf1;
-    color: #0c5460;
-    border: 1px solid #bee5eb;
-}
+        .alert-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
 
-.alert-success {
-    background-color: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
 
-.alert-error {
-    background-color: #FFD233;
-    color:rgb(216, 61, 14);
-    border: 1px solid #ffeeba;
-}
+        .alert-error {
+            background-color: #FFD233;
+            color: rgb(216, 61, 14);
+            border: 1px solid #ffeeba;
+        }
 
-.alert-danger {
-    background-color: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .scrollable-button {
+            white-space: nowrap; /* Prevent text wrapping */
+            overflow-x: auto; /* Enable horizontal scrolling */
+            max-width: 120px; /* Set a maximum width */
+            scrollbar-width: none; /* Hide scrollbar in Firefox */
+            -ms-overflow-style: none; /* Hide scrollbar in IE/Edge */
+        }
+        
+        .scrollable-button::-webkit-scrollbar {
+            display: none; /* Hide scrollbar in Chrome, Safari, and Opera */
+        }
     </style>
 
     {% block extra_css %}
@@ -79,34 +88,75 @@
 
 <body>
     <header>
-        <!-- Topbar Start -->
-        <!-- Topbar End -->
-
-
         <!-- Navbar Start -->
         <div class="container-fluid bg-dark mb-0">
-            <div class="row px-xl-5">
-                <div class="col-lg-4">
-                <a href="" class="text-decoration-none">
-                    <span class="h1 text-uppercase text-primary bg-dark px-2">STORE</span>
-                    <span class="h1 text-uppercase text-dark bg-primary px-2 ml-n1">ROOM</span>
-                </a>
-            </div>
-                <div class="col-lg-8">
+            <div class="row px-xl-1 align-items-center">
+                <!-- Logo Section (Now Visible on All Screens) -->
+                <div class="col-lg-3 d-flex align-items-center">
+                    <a href="/" class="text-decoration-none">
+                        <span class="h1 text-uppercase text-dark bg-light px-2">STORE</span>
+                        <span class="h1 text-uppercase text-light bg-primary px-2 ml-n1">ROOM</span>
+                    </a>
+                </div>
+                <div class="d-md-block col-5 text-left">
+                    <form action="">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Search for products">
+                            <div class="input-group-append">
+                                <span class="input-group-text bg-transparent text-primary">
+                                    <i class="fa fa-search"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <!-- Navigation Section -->
+                <div class="col-lg-4  text-right">
                     <nav class="navbar navbar-expand-lg bg-dark navbar-dark py-3 py-lg-0 px-0">
-                        <a href="" class="text-decoration-none d-block d-lg-none">
-                            <span class="h1 text-uppercase text-dark bg-light px-2">STORE</span>
-                            <span class="h1 text-uppercase text-light bg-primary px-2 ml-n1">ROOM</span>
-                        </a>
-                       <button type="button" class="navbar-toggler" data-toggle="collapse"
+                        <!-- Mobile Toggle Button -->
+                        <button type="button" class="navbar-toggler" data-toggle="collapse"
                             data-target="#navbarCollapse">
                             <span class="navbar-toggler-icon"></span>
                         </button>
-                        <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
-                            <div class="navbar-nav mr-auto py-0">
-                                <a href="index.html" class="nav-item nav-link active">Home</a>
-                                <a href="shop.html" class="nav-item nav-link">Shop</a>
-                                <a href="detail.html" class="nav-item nav-link">Shop Detail</a>
+                            <div class="navbar-nav py-0 d-flex align-items-center justify-content-between">
+                                <!-- Heart Icon -->
+                                <a href="{% url 'customer:wishlist' %}" class="btn px-0 mx-2">
+                                    <i class="fas fa-heart text-light"></i>
+                                    <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;"></span>
+                                </a>
+                            
+                                <!-- Cart Icon -->
+                                <a href="{% url 'store:cart' %}" class="btn px-0 mx-2">
+                                    <i class="fas fa-shopping-cart  text-light"></i>
+                                    <span class="badge text-secondary border border-secondary rounded-circle total_cart_items" style="padding-bottom: 2px;">{{ total_cart_items }}</span>
+                                </a>
+                            
+                                <!-- Profile Icon -->
+                                <a href="{% if request.user.is_authenticated %}
+                                        {% if request.user.profile.user_Type == 'Vendor' %}
+                                            {% url 'vendor:profile' %}
+                                        {% else %}
+                                            {% url 'customer:profile' %}
+                                        {% endif %}
+                                    {% else %}
+                                        {% url 'userauths:sign-in' %}
+                                    {% endif %}" class="btn px-0 mx-2">
+                                    {% if request.user.is_authenticated %}
+                                    <p class="btn btn-outline-light rounded m-0 scrollable-button">
+                                        <i class="fas fa-user rounded-circle m-0"></i>
+                                            {{ request.user.username  }}  
+                                    </p>
+                                       
+                                    {% else %}
+                                        <p class="btn btn-outline-light rounded mb-0">
+                                            <i class="fas fa-user rounded-circle m-0"></i> Sign-in
+                                        </p>
+                                    {% endif %}
+                                </a>
+                            
+                                <!-- Contact Link -->
+                                <a href="contact.html" class="nav-item nav-link ">Contact</a>
+                                <!-- <a href="contact.html" class="nav-item nav-link ">Contact</a> -->
                                 <div class="nav-item dropdown">
                                     <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Pages <i
                                             class="fa fa-angle-down mt-1"></i></a>
@@ -115,21 +165,9 @@
                                         <a href="checkout.html" class="dropdown-item">Checkout</a>
                                     </div>
                                 </div>
-                                <a href="contact.html" class="nav-item nav-link">Contact</a>
+                               
                             </div>
-                            <div class="navbar-nav ml-auto py-0 d-none d-lg-block">
-                                <a href="" class="btn px-0">
-                                    <i class="fas fa-heart text-primary"></i>
-                                    <span class="badge text-secondary border border-secondary rounded-circle"
-                                        style="padding-bottom: 2px;">0</span>
-                                </a>
-                                <a href="{% url 'store:cart'%}" class="btn px-0 ml-3">
-                                    <i class="fas fa-shopping-cart text-primary"></i>
-                                    <span class="badge text-secondary border border-secondary rounded-circle total_cart_items"
-                                        style="padding-bottom: 2px;">{{total_cart_items}}</span>
-                                </a>
-                            </div>
-                        </div>
+                        
                     </nav>
                 </div>
             </div>
@@ -137,16 +175,18 @@
         <!-- Navbar End -->
     </header>
 
+
     <main>
 
-    <!-- Messages -->
-{% if messages %}
-    {% for message in messages %}
+        <!-- Messages -->
+        {% if messages %}
+        {% for message in messages %}
         <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
             <strong>{{ message }}</strong>
         </div>
-    {% endfor %}
-{% endif %}
+        {% endfor %}
+        {% endif %}
+     
 
 
 
@@ -225,9 +265,9 @@
             <div class="row border-top mx-xl-5 py-4" style="border-color: rgba(256, 256, 256, .1) !important;">
                 <div class="col-md-6 px-xl-0">
                     <p class="mb-md-0 text-center text-md-left text-secondary">
-                        &copy; <a class="text-primary" href="#">Domain</a>. All Rights Reserved. Designed
+                        &copy; <a class="text-primary" href="#">Store Room</a>. All Rights Reserved. Designed
                         by
-                        <a class="text-primary" href="https://htmlcodex.com">HTML Codex</a>
+                        <a class="text-primary" href="">murali</a>
                     </p>
                 </div>
                 <div class="col-md-6 px-xl-0 text-center text-md-right">
@@ -249,8 +289,8 @@
 
     <script src="{% static 'mail/contact.js' %}"></script>
 
- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="{% static 'js/functions.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{% static 'js/functions.js' %}"></script>
 
     <!-- Template Javascript -->
     <script src="{% static 'js/main.js' %}"></script>

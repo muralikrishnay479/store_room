@@ -207,7 +207,7 @@ ANYMAIL = {
 }
 
 FROM_EMAIL=env("FM")
-
+ADMIN_EMAIL=env("AE")
 # print("FROM_EMAIL",FROM_EMAIL)
 EMAIL_BACKEND=env("EMAIL_BACKEND")
 # print("EMAIL_BACKEND",EMAIL_BACKEND)
@@ -217,7 +217,7 @@ SERVER_EMAIL=env("SERVER_EMAIL")
 
 LOGOUT_REDIRECT_URL = "userauths:sign-in"
 LOGIN_URL = "userauths:sign-in"
-LOGIN_REDIRECT_URL = "store: /"
+
 
 
 
