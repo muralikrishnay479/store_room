@@ -148,7 +148,7 @@ def register_view(request):
 
         messages.success(request, f"Account creation for {full_name} is successful")
         profile = userauths_models.Profile.objects.create(user=user, full_name=full_name, mobile=mobile)
-
+        
         if user_type == "Vendor":
             vendor_models.Vendor.objects.create(user=user, store_name=full_name)
             profile.user_Type = "Vendor"

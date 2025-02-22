@@ -240,7 +240,7 @@ def delete_address(request,id):
 
 @login_required 
 def profile(request):
-    profile = request.user.profile
+    profile = request.user.Profile
     
     if request.method == "POST":
         image = request.FILES.get("image")
