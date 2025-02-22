@@ -4,6 +4,8 @@ from django.utils import timezone
 from django.utils.text import slugify
 from django_ckeditor_5.fields import CKEditor5Field
 
+from cloudinary.models import CloudinaryField
+
 
 from userauths import models as user_models
 # from vendor import models as vendor_models
@@ -55,9 +57,11 @@ RATING = (
     (5, "★★★★★"),
 )
 
+
+
 class Category(models.Model):
     title = models.CharField(max_length=255)
-    image = models.ImageField(upload_to= "image", null=True, blank= True )
+    image = CloudinaryField( null=True, blank= True )
     slug = models.SlugField(unique=True)
     
     def __str__(self):
@@ -70,7 +74,7 @@ class Category(models.Model):
         
 class Product(models.Model):
     name = models.CharField(max_length=100)
-    image = models.FileField(upload_to="images", blank=True, null=True, default="product.jpg")
+    image = CloudinaryField( blank=True, null=True, default="product.jpg")
     description = CKEditor5Field('Text', config_name='extends')
     
 
@@ -146,7 +150,7 @@ class VariantItem(models.Model):
           
 class Gallery(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True)
-    image = models.FileField(upload_to="images", default="gallery.jpg")
+    image = CloudinaryField( default="gallery.jpg")
     gallery_id = ShortUUIDField(length=6, max_length=10, alphabet="1234567890")
 
     def __str__(self):

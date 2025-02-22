@@ -15,6 +15,9 @@ import os
 import dj_database_url
 from dotenv import load_dotenv
 
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 load_dotenv()  # Load .env variables
 
@@ -56,6 +59,8 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'accounts',
     
+    'cloudinary',
+    'cloudinary_storage',  # Add this line
     
     'blog',
     'customer',
@@ -244,7 +249,21 @@ LOGOUT_REDIRECT_URL = "userauths:sign-in"
 LOGIN_URL = "userauths:sign-in"
 
 
+# Cloudinary configuration
+cloudinary.config(
+    cloud_name=env('CLOUDINARY_CLOUD_NAME'),  # From .env file or system environment
+    api_key=env('CLOUDINARY_API_KEY'),
+    api_secret=env('CLOUDINARY_API_SECRET'),
+    secure=True  # Use HTTPS
+)
 
+
+
+# # Cloudinary configuration
+# CLOUDINARY_URL = env('CLOUDINARY_URL')
+
+# Default file storage for media files
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
  
  
