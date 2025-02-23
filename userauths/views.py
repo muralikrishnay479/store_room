@@ -19,7 +19,64 @@ from django.urls import reverse
 
 User = get_user_model()
 
-# Password Reset Request View
+# # Password Reset Request View
+# def password_reset_request(request):
+#     if request.method == "POST":
+#         email = request.POST.get("email")
+#         try:
+#             user = User.objects.get(email=email)
+#         except User.DoesNotExist:
+#             messages.error(request, "No user found with this email address.")
+#             return redirect("userauths:password_reset_request")
+
+#         # Generate password reset token and URL
+#         token = default_token_generator.make_token(user)
+#         uid = urlsafe_base64_encode(force_bytes(user.pk))
+#         reset_url = request.build_absolute_uri(
+#             reverse("userauths:password_reset_confirm", kwargs={"uidb64": uid, "token": token})
+#         )
+
+#         # Prepare email content
+#         subject = "Password Reset Request"
+#         text_body = render_to_string("password_reset_email.txt", {
+#             "user": user,
+#             "reset_url": reset_url,
+#         })
+#         html_body = render_to_string("password_reset_email.html", {
+#             "user": user,
+#             "reset_url": reset_url,
+#         })
+
+#         # Send email
+#         msg = EmailMultiAlternatives(
+#             subject=subject,
+#             from_email=settings.FROM_EMAIL,
+#             to=[user.email],
+#             body=text_body,
+#         )
+#         msg.attach_alternative(html_body, "text/html")
+#         msg.send()
+
+#         messages.success(request, "Password reset email has been sent. Please check your inbox.")
+#         return redirect("userauths:password_reset_done")
+
+#     return render(request, "password_reset.html")
+
+
+
+from django.core.mail import EmailMultiAlternatives
+from django.core.exceptions import ValidationError
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
+from django.urls import reverse
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.conf import settings
+from django.template.loader import render_to_string
+from django.core.mail import EmailMultiAlternatives
+from requests.exceptions import HTTPError
+
 def password_reset_request(request):
     if request.method == "POST":
         email = request.POST.get("email")
@@ -27,7 +84,7 @@ def password_reset_request(request):
             user = User.objects.get(email=email)
         except User.DoesNotExist:
             messages.error(request, "No user found with this email address.")
-            return redirect("password_reset_request")
+            return redirect("userauths:password_reset_request")
 
         # Generate password reset token and URL
         token = default_token_generator.make_token(user)
@@ -48,20 +105,26 @@ def password_reset_request(request):
         })
 
         # Send email
-        msg = EmailMultiAlternatives(
-            subject=subject,
-            from_email=settings.FROM_EMAIL,
-            to=[user.email],
-            body=text_body,
-        )
-        msg.attach_alternative(html_body, "text/html")
-        msg.send()
+        try:
+            msg = EmailMultiAlternatives(
+                subject=subject,
+                from_email=settings.FROM_EMAIL,
+                to=[user.email],
+                body=text_body,
+            )
+            msg.attach_alternative(html_body, "text/html")
+            msg.send()
 
-        messages.success(request, "Password reset email has been sent. Please check your inbox.")
-        return redirect("userauths:password_reset_done")
+            messages.success(request, "Password reset email has been sent. Please check your inbox.")
+            return redirect("userauths:password_reset_done")
+        except HTTPError as e:
+            if e.response.status_code == 403:
+                messages.error(request, "Your account is not authorized in Mailgun. Please contact support.")
+            else:
+                messages.error(request, "An error occurred while sending the password reset email. Please try again later.")
+            return redirect("userauths:password_reset_request")
 
     return render(request, "password_reset.html")
-
 # Password Reset Done View
 def password_reset_done(request):
     return render(request, "password_reset_done.html")

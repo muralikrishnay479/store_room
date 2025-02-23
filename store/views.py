@@ -224,8 +224,6 @@ razorpay_client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZOR
 def checkout(request, order_id):
     order = get_object_or_404(store_models.Order, order_id=order_id)
     amount_in_inr = int(order.total * 100)  # Convert to paise
-    print("Checking out:", order_id, order.total, amount_in_inr)
-    print('Initialized Razorpay client', settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
     try:
         razorpay_order = razorpay_client.order.create({
             "amount": amount_in_inr,
