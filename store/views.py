@@ -60,7 +60,7 @@ def add_to_cart(request):
     
     
     try:
-        product = store_models.Product.objects.get(status="published", id=id)
+        product = store_models.Product.objects.get(status="Published", id=id)
     except store_models.Product.DoesNotExist:
         return JsonResponse({"error": "Product not found"}, status=400)
 
