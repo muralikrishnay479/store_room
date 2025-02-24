@@ -3,32 +3,41 @@
 
 {% block content1 %}
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 vh-100 overflow-auto">
-    <!-- Reviews Header -->
+
+    <!-- Doughnut Chart Section -->
+    <div class="card shadow-sm p-3 mb-4">
+        <h5 class="card-title">Review Ratings Distribution</h5>
+        <div style="height: 50vh;">
+            <canvas id="reviewRatingChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Reviews Section -->
     <div class="mt-4 border rounded shadow-sm bg-white">
         <div class="p-3 bg-dark text-white rounded-top d-flex justify-content-between align-items-center">
             <div>
-                <h4 class="mb-0 text-white"><strong>Reviews</strong></h4>
+            <h4 class="mb-0 text-white"><strong>Reviews</strong></h4>
             </div>
             <div>
-                <!-- Filter Form -->
-                <form method="get" class="form-inline">
-                    <label for="rating" class="mr-2">Filter by Rating:</label>
-                    <select name="rating" id="rating" class="form-control form-control-sm mr-2">
-                        <option value="">All</option>
-                        <option value="1" {% if request.GET.rating == "1" %}selected{% endif %}>★☆☆☆☆</option>
-                        <option value="2" {% if request.GET.rating == "2" %}selected{% endif %}>★★☆☆☆</option>
-                        <option value="3" {% if request.GET.rating == "3" %}selected{% endif %}>★★★☆☆</option>
-                        <option value="4" {% if request.GET.rating == "4" %}selected{% endif %}>★★★★☆</option>
-                        <option value="5" {% if request.GET.rating == "5" %}selected{% endif %}>★★★★★</option>
-                    </select>
+            <!-- Filter Form -->
+            <form method="get" class="form-inline">
+                <label for="rating" class="mr-2">Filter by Rating:</label>
+                <select name="rating" id="rating" class="form-control form-control-sm mr-2">
+                    <option value="">All</option>
+                    <option value="1" {% if request.GET.rating == "1" %}selected{% endif %}>★☆☆☆☆</option>
+                    <option value="2" {% if request.GET.rating == "2" %}selected{% endif %}>★★☆☆☆</option>
+                    <option value="3" {% if request.GET.rating == "3" %}selected{% endif %}>★★★☆☆</option>
+                    <option value="4" {% if request.GET.rating == "4" %}selected{% endif %}>★★★★☆</option>
+                    <option value="5" {% if request.GET.rating == "5" %}selected{% endif %}>★★★★★</option>
+                </select>
                     <label for="date" class="mr-2">Filter by Date:</label>
                     <input type="date" name="date" id="date" class="form-control form-control-sm mr-2" value="{{ request.GET.date }}">
                     
                     <label for="product_name" class="mr-2">Filter by Product:</label>
                     <input type="text" name="product_name" id="product_name" class="form-control form-control-sm mr-2" placeholder="Enter product name" value="{{ request.GET.product_name }}">
 
-                    <button type="submit" class="btn btn-primary btn-sm">Apply Filters</button>
-                </form>
+                <button type="submit" class="btn btn-primary btn-sm">Apply Filters</button>
+            </form>
             </div>
         </div>
 
@@ -46,7 +55,6 @@
                             <p class="card-text"><strong>Date:</strong> {{ review.date|date:"M d, Y" }}</p>
                             <p class="card-text"><strong>Reply:</strong> {{ review.reply|default:"No reply yet" }}</p>
                             <div class="d-flex gap-2">
-                                <!-- Update Reply Button -->
                                 <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#updateReplyModal{{ review.id }}">
                                     <i class="fas fa-edit"></i> Update Reply
                                 </button>
@@ -82,6 +90,66 @@
     </div>
 </main>
 
-<!-- Include Bootstrap JS -->
+<!-- Include jQuery and Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    $(document).ready(function () {
+        var ctx = document.getElementById("reviewRatingChart").getContext("2d");
+
+        function loadReviewData() {
+            $.ajax({
+                url: "{% url 'vendor:get_review_data' %}",  // Fetch data from Django view
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    var chartData = {
+                        labels: ["1 Star", "2 Stars", "3 Stars", "4 Stars", "5 Stars"],
+                        datasets: [{
+                            label: "Review Ratings",
+                            data: [
+                                data.one_star, 
+                                data.two_star, 
+                                data.three_star, 
+                                data.four_star, 
+                                data.five_star
+                            ],
+                            backgroundColor: [
+                                "rgba(255, 99, 132, 0.6)",   // Red
+                                "rgba(255, 159, 64, 0.6)",   // Orange
+                                "rgba(255, 205, 86, 0.6)",   // Yellow
+                                "rgba(75, 192, 192, 0.6)",   // Green
+                                "rgba(54, 162, 235, 0.6)"    // Blue
+                            ],
+                            borderColor: "#fff",
+                            borderWidth: 2
+                        }]
+                    };
+
+                    new Chart(ctx, {
+                        type: "doughnut",
+                        data: chartData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: "bottom"
+                                }
+                            }
+                        }
+                    });
+                },
+                error: function () {
+                    console.error("Error fetching review data.");
+                }
+            });
+        }
+
+        loadReviewData(); // Load chart data on page load
+    });
+</script>
+
 {% endblock %}

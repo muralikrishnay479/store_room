@@ -98,7 +98,7 @@ def products(request):
 @login_required
 def orders(request):
     # Fetch orders where the logged-in user is the vendor
-    orders = store_models.Order.objects.filter(vendors=request.user, payment_status='paid')
+    orders = store_models.Order.objects.filter(vendors=request.user, payment_status='Paid')
 
     # Filter by order status
     status_filter = request.GET.get('status')
@@ -114,7 +114,7 @@ def orders(request):
     for order in orders:
         order.vendor_total = sum(
             item.price * item.qty for item in order.order_items()
-            if item.product.vendor == request.user.vendor
+            if item.product.vendor == request.user
         )
 
     context = {
@@ -132,7 +132,7 @@ from store import models as store_models
 @login_required
 def order_details(request, order_id):
     # Fetch the order for the logged-in vendor
-    order = get_object_or_404(store_models.Order, vendors=request.user, order_id=order_id, payment_status='paid')
+    order = get_object_or_404(store_models.Order, vendors=request.user, order_id=order_id, payment_status='Paid')
     
     # Calculate vendor-specific totals
     vendor_items = order.order_items().filter(product__vendor=request.user)
@@ -164,10 +164,10 @@ def order_item_detail(request, order_id, item_id):
 
 @login_required
 def update_order_status(request,order_id):
-    oder = store_models.Order.objects.get(vendor=request.user,order_id=order_id, payment_status ='paid')
+    order = store_models.Order.objects.get(vendors=request.user,order_id=order_id, payment_status ='Paid')
     
     if request.method == 'POST':
-        order_status = request.POST.get('order_status')
+        order_status = request.POST.get('status')
         order.order_status = order_status
         order.save()
         
@@ -177,8 +177,8 @@ def update_order_status(request,order_id):
     
 
 @login_required
-def update_order_item_status(request,order_id,item_id):
-    order = store_models.Order.objects.get(vendor=request.user,order_id=order_id, payment_status ='paid')
+def update_order_item_status(request,order_i,item_id):
+    order = store_models.Order.objects.get(vendors=request.user,order_id=order_id, payment_status ='Paid')
     item = store_models.OrderItem.objects.get(item_id=item_id, order=order)
    
     if request.method == 'POST':
@@ -510,3 +510,81 @@ def delete_product(request, product_id):
     product.delete()
     messages.success(request, 'Product deleted successfully')
     return redirect('vendor:products')
+
+def get_product_data(request):
+    products = store_models.Product.objects.all()
+    data = {
+        "labels": [product.name for product in products],
+        "quantities": [product.stock for product in products],
+    }
+    return JsonResponse(data)
+
+
+from django.http import JsonResponse
+
+
+def get_review_data(request):
+    review_counts = {
+        "one_star": store_models.Review.objects.filter(rating=1, product__vendor=request.user).count(),
+        "two_star": store_models.Review.objects.filter(rating=2, product__vendor=request.user).count(),
+        "three_star": store_models.Review.objects.filter(rating=3, product__vendor=request.user).count(),
+        "four_star": store_models.Review.objects.filter(rating=4, product__vendor=request.user).count(),
+        "five_star": store_models.Review.objects.filter(rating=5, product__vendor=request.user).count(),
+    }
+    return JsonResponse(review_counts)
+
+
+from collections import Counter
+def get_order_payment_data(request):
+    orders = store_models.Order.objects.all()
+
+    # Count order statuses
+    order_status_counts = dict(Counter(orders.values_list('order_status', flat=True)))
+
+    # Count payment statuses
+    payment_status_counts = dict(Counter(orders.values_list('payment_status', flat=True)))
+
+    return JsonResponse({
+        "order_status": order_status_counts,
+        "payment_status": payment_status_counts
+    })
+    
+
+from django.db.models import Sum, Count
+from django.http import JsonResponse
+from django.shortcuts import render
+from datetime import datetime
+from django.http import JsonResponse
+from django.db.models import Sum
+ # Adjust this import based on your actual app structure
+
+def get_sales_data(request):
+    try:
+        # Daily Sales Data
+        daily_sales = (
+            store_models.Order.objects
+            .values('date__year', 'date__month', 'date__day')
+            .annotate(total=Sum('total'))
+            .order_by('date__year', 'date__month', 'date__day')
+        )
+
+        # Monthly Sales Data
+        monthly_sales = (
+            store_models.Order.objects
+            .values('date__year', 'date__month')
+            .annotate(total=Sum('total'))
+            .order_by('date__year', 'date__month')
+        )
+
+        # Convert querysets to lists
+        daily_sales_list = [{"year": d["date__year"], "month": d["date__month"], "day": d["date__day"], "total": float(d["total"])} for d in daily_sales]
+        monthly_sales_list = [{"year": m["date__year"], "month": m["date__month"], "total": float(m["total"])} for m in monthly_sales]
+
+        return JsonResponse({
+            "success": True,
+            "daily_sales": daily_sales_list,
+            "monthly_sales": monthly_sales_list
+        }, safe=False)
+
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)

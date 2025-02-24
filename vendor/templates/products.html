@@ -3,6 +3,15 @@
 
 {% block content1 %}
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+
+    <!-- Bar Chart Section -->
+    <div class="card shadow-sm p-3 mb-4">
+        <h5 class="card-title">Product Stock</h5>
+        <div style="height: 50vh;">
+            <canvas id="productQuantityChart"></canvas>
+        </div>
+    </div>
+
     <h3 class="my-4">Your Products ({{ products.paginator.count }})</h3>
 
     <!-- Search and Sort Bar -->
@@ -123,4 +132,66 @@
         </div>
     </div>
 </main>
+<!-- Include jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    $(document).ready(function () {
+        var ctx = document.getElementById("productQuantityChart").getContext("2d");
+
+        function loadChartData() {
+            $.ajax({
+                url: "{% url 'vendor:get_product_data' %}",  // Fetch data from Django view
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    var chartData = {
+                        labels: data.labels,
+                        datasets: [{
+                            label: "Product Quantity",
+                            data: data.quantities,
+                            backgroundColor: "#FFD333",
+                           
+                            borderWidth: 2,
+                            borderRadius: 8,  // Rounded corners
+                            hoverBackgroundColor: "#6c757d"
+                        }]
+                    };
+
+                    new Chart(ctx, {
+                        type: "bar",
+                        data: chartData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: { display: false }, // Removes horizontal lines
+                                    ticks: {
+                                        precision: 0 // Ensures whole numbers on Y-axis
+                                    }
+                                },
+                                x: {
+                                    grid: { display: false } // Removes vertical lines
+                                }
+                            },
+                            plugins: {
+                                legend: { display: false } // Hides legend for a cleaner look
+                            }
+                        }
+                    });
+                },
+                error: function () {
+                    console.error("Error fetching product data.");
+                }
+            });
+        }
+
+        loadChartData(); // Load chart data on page load
+    });
+</script>
+
+
 {% endblock %}

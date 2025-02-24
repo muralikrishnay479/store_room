@@ -3,6 +3,27 @@
 
 {% block content1 %}
 <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 vh-100 overflow-auto">
+
+    <!-- doughnut charts for order status and payment status in single  row with two columns of hight 50% of the screen through ajax method for order status and payment status -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3">
+                <h5 class="card-title text-center">Order Status Distribution</h5>
+                <div style="height: 50vh;">
+                    <canvas id="orderStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3">
+                <h5 class="card-title text-center">Payment Status Distribution</h5>
+                <div style="height: 50vh;">
+                    <canvas id="paymentStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Filtering Options -->
     <div class="mt-4 mb-3">
         <form method="get" class="form-inline">
@@ -139,4 +160,64 @@
         </div>
     </div>
 </main>
+
+<!-- Include jQuery and Chart.js -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    $(document).ready(function () {
+        function loadCharts() {
+            $.ajax({
+                url: "{% url 'vendor:get_order_payment_data' %}",
+                type: "GET",
+                dataType: "json",
+                success: function (data) {
+                    var orderCtx = document.getElementById("orderStatusChart").getContext("2d");
+                    var paymentCtx = document.getElementById("paymentStatusChart").getContext("2d");
+                    
+                    new Chart(orderCtx, {
+                        type: "doughnut",
+                        data: {
+                            labels: Object.keys(data.order_status),
+                            datasets: [{
+                                data: Object.values(data.order_status),
+                                backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"],
+                                borderColor: "#fff",
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: "bottom" } }
+                        }
+                    });
+                    
+                    new Chart(paymentCtx, {
+                        type: "doughnut",
+                        data: {
+                            labels: Object.keys(data.payment_status),
+                            datasets: [{
+                                data: Object.values(data.payment_status),
+                                backgroundColor: ["#9966FF", "#FF9F40", "#FF6384"],
+                                borderColor: "#fff",
+                                borderWidth: 2
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: "bottom" } }
+                        }
+                    });
+                },
+                error: function () {
+                    console.error("Error fetching order & payment data.");
+                }
+            });
+        }
+        loadCharts();
+    });
+</script>
 {% endblock %}

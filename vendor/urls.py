@@ -13,6 +13,7 @@ urlpatterns = [
   path( "order_details/<order_id>/",views.order_details, name="order_details"),
   path( "order_item_detail/<order_id>/item_id/",views.order_item_detail , name="order_item_detail"),
   path( "update_order_item_status/<order_id>/item_id/",views.update_order_item_status , name="update_order_item_status"),
+  path( "update_order_status/<order_id>/",views.update_order_status , name="update_order_status"),
   # path( "products/", views.products , name="products"),
   
   
@@ -40,4 +41,12 @@ urlpatterns = [
   path("delete_variant/<int:product_id>/<int:variant_id>/", views.delete_variant, name="delete_variant"),
   path("delete_variant_item/<int:product_id>/<int:variant_id>/<int:item_id>/", views.delete_variant_item, name="delete_variant_item"),
   path("delete_gallery_image/<int:image_id>/", views.delete_gallery_image, name="delete_gallery_image"),
+  
+  
+
+  path("get_product_data/", views.get_product_data, name="get_product_data"),
+  path('get_review_data/', views.get_review_data, name='get_review_data'),
+  path('get_order_payment_data/', views.get_order_payment_data, name='get_order_payment_data'),
+  path('get_sales_data/', views.get_sales_data, name='get_sales_data'),
+
 ]

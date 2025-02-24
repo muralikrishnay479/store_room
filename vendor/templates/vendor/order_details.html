@@ -2,7 +2,119 @@
 {% load static %}
 
 {% block content1 %}
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 vh-100 overflow-auto">
+    <!-- Order Header -->
+    <div class="mt-4 border rounded shadow-sm bg-white">
+        <div class="p-3 bg-dark text-white rounded-top d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-0 text-white"><strong>Order Details</strong></h4>
+            </div>
+            <div>
+                <a href="{% url 'vendor:orders' %}" class="btn btn-secondary btn-sm">Back to Orders</a>
+            </div>
+        </div>
 
-<!-- main content goes here -->
+        <!-- Order Summary -->
+        <div class="p-3">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-1"><strong>Order ID:</strong> #{{ order.order_id }}</p>
+                    <p class="mb-1"><strong>Order Date:</strong> {{ order.date|date:"M d, Y" }}</p>
+                    <div class="d-flex flex-column w-auto">
+                    <p class="mb-1"><strong>Order Status:</strong>
+                        <form method="post"  action="{% url 'vendor:update_order_status' order.order_id %}"class="d-inline">
+                            <form method="post">
+                            {% csrf_token %}
+                           
+                            <select name="status" class=" btn btn-outline-info form-control form-control-sm d-inline w-auto" onchange="this.form.submit()">
+                                <option value="Pending" {% if order.order_status == "Pending" %}selected{% endif %}>Pending</option>
+                                <option value="Shipped" {% if order.order_status == "Shipped" %}selected{% endif %}>Shipped</option>
+                                <option value="Cancelled" {% if order.order_status == "Cancelled" %}selected{% endif %}>Cancelled</option>
+                            </select>
+                            <button type="submit" class="btn btn-outline-primary btn-sm" >Update</button>
 
+                        </form>
+                         
+                    </p>
+                    </div>
+                    <p class="mb-1"><strong>Payment Status:</strong> <span class="btn btn-sm btn-outline-success disabled">{{ order.payment_status }}</span></p>
+                    <p class="mb-1"><strong>Payment Method:</strong> {{ order.payment_method }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1"><strong>Customer Name:</strong> {{ order.customer.profile.full_name }}</p>
+                    <p class="mb-1"><strong>Customer Email:</strong> {{ order.customer.email }}</p>
+                    <p class="mb-1"><strong>Shipping Address:</strong></p>
+                    <p class="mb-0">{{ order.address.address }}, {{ order.address.city }}, {{ order.address.state }}, {{ order.address.country }} - {{ order.address.zip_code }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Items -->
+    <div class="mt-4 border rounded shadow-sm bg-white">
+        <div class="p-3 bg-light rounded-top">
+            <h5 class="mb-0"><strong>Order Items</strong></h5>
+        </div>
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Details</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in vendor_items %}
+                <tr class="border-bottom">
+                    <td class="align-middle">
+                        <img src="{{ item.product.image.url }}" alt="Product Image" class="product-img img-thumbnail" style="width: 80px; height: 80px;">
+                    </td>
+                    <td class="align-middle">
+                        <h6 class="mb-1"><strong>{{ item.product.name }}</strong></h6>
+                        {% if item.color %}
+                            <p class="mb-1 text-muted">Color: {{ item.color }}</p>
+                        {% endif %}
+                        {% if item.size %}
+                            <p class="mb-1 text-muted">Size: {{ item.size }}</p>
+                        {% endif %}
+                    </td>
+                    <td class="align-middle">
+                        <p class="mb-0"><strong>{{ item.qty }}</strong></p>
+                    </td>
+                    <td class="align-middle">
+                        <p class="mb-0"><strong>₹{{ item.price }}</strong></p>
+                    </td>
+                    <td class="align-middle">
+                        <p class="mb-0"><strong>₹{{ item.price  }}</strong></p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Payment Summary -->
+    <div class="mt-4 border rounded shadow-sm bg-white">
+        <div class="p-3 bg-light rounded-top">
+            <h5 class="mb-0"><strong>Payment Summary</strong></h5>
+        </div>
+        <div class="p-3">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-1"><strong>Subtotal:</strong> ₹{{ vendor_subtotal }}</p>
+                    <p class="mb-1"><strong>Shipping:</strong> ₹{{ vendor_shipping }}</p>
+                    <p class="mb-1"><strong>Tax:</strong> ₹{{ vendor_tax }}</p>
+                    <p class="mb-1"><strong>Coupon Discount:</strong> ₹{{ order.saved }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p class="mb-1"><strong>Total:</strong> ₹{{ vendor_total }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  
+</main>
 {% endblock %}

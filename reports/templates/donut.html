@@ -1,48 +1,115 @@
 {% extends 'base.html' %}
 {% load static %}
 
-<title>{% block title %}Event Management{% endblock %}</title>
+{% block title %}Storeroom Dashboard{% endblock %}
 
 {% block extra_css %}
-    <!-- Extra CSS specific to individual pages -->
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"> -->
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
-{% comment %} {% include "layouts/header.html" %} {% endcomment %}
+
 {% block content %}
-  <!-- main content goes here -->
- 
-  <body>
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Storeroom Dashboard</h2>
 
+    <div class="row text-center">
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm p-3">
+                <h5>Total Orders</h5>
+                <p class="fs-4 fw-bold text-primary" id="totalOrders">30</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm p-3">
+                <h5>Avg Order Value</h5>
+                <p class="fs-4 fw-bold text-success" id="avgOrderValue">534.21</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm p-3">
+                <h5>Pending Orders</h5>
+                <p class="fs-4 fw-bold text-danger" id="pendingOrders">8</p>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm p-3">
+                <h5>Total Sales</h5>
+                <p class="fs-4 fw-bold text-warning" id="totalSales">16.03K</p>
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <div class="card shadow-sm p-3">
+                <h5>Total Income</h5>
+                <p class="fs-4 fw-bold text-info" id="totalIncome">7.26K</p>
+            </div>
+        </div>
+    </div>
 
-
-   <iframe
-    title="Analysis"
-    width="1140"
-    height="541.25"
-    src="https://app.powerbi.com/reportEmbed?reportId=9018f5ec-28be-4d73-9075-13da58746beb&autoAuth=true&ctid=d783a3ac-1d29-4e31-8dba-5902c41a5774"
-    frameborder="0"
-    allowFullScreen="true">
-  </iframe> 
-    <canvas id="myChart"></canvas>
-
-    <script>
-        var chartData = JSON.parse('{{ chart_data|safe }}');
-        var ctx = document.getElementById('myChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: chartData.labels,
-                datasets: [{
-                    label: 'Sales',
-                    data: chartData.values,
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)'
-                }]
-            }
-        });
-    </script>
-</body>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h5 class="text-center">Sales by Year</h5>
+                <canvas id="salesByYearChart"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h5 class="text-center">Order Status</h5>
+                <canvas id="orderStatusChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
-  
+
 {% block extra_js %}
-    <!-- Extra JS specific to individual pages -->
+<script>
+    const salesByYearCtx = document.getElementById('salesByYearChart').getContext('2d');
+    const salesByYearChart = new Chart(salesByYearCtx, {
+        type: 'bar',
+        data: {
+            labels: ['2023', '2024', '2025'],
+            datasets: [{
+                label: 'Total Sales by Year',
+                data: [12000, 15000, 10000],
+                borderColor: 'purple',
+                fill: false
+            }]
+        }
+    });
+
+    const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
+    const orderStatusChart = new Chart(orderStatusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Pending', 'Processing', 'Cancelled', 'Shipped', 'Fulfilled'],
+            datasets: [{
+                data: [10, 26, 6, 20, 23],
+                backgroundColor: ['red', 'orange', 'blue', 'green', 'purple']
+            }]
+        }
+    });
+
+    async function updateDashboard() {
+        const response = await fetch("{% url 'reports:dashboard-data' %}");
+        const data = await response.json();
+
+        document.getElementById("totalOrders").textContent = data.total_orders;
+        document.getElementById("avgOrderValue").textContent = data.avg_order_value;
+        document.getElementById("pendingOrders").textContent = data.pending_orders;
+        document.getElementById("totalSales").textContent = data.total_sales;
+        document.getElementById("totalIncome").textContent = data.total_income;
+
+        salesByYearChart.data.datasets[0].data = data.sales_by_year;
+        salesByYearChart.update();
+
+        orderStatusChart.data.datasets[0].data = data.order_status;
+        orderStatusChart.update();
+    }
+
+    updateDashboard();
+    setInterval(updateDashboard, 5000); // Auto-update every 5 seconds
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}
