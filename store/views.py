@@ -28,7 +28,7 @@ def index(request):
     return render(request, "index.html", {"categories": categories, "products": products})
 
 def product_detail(request, slug):
-    product = store_models.Product.objects.get(status="published", slug=slug)
+    product = store_models.Product.objects.get(status="Published", slug=slug)
     related_product= store_models.Product.objects.filter(category=product.category,status="published").exclude(id=product.id)
     product_stock_range = range(1, product.stock + 1)
     context = {

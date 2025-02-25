@@ -3,44 +3,41 @@
 
 <title>{% block title %}Event Management{% endblock %}</title>
 
+
 {% block extra_css %}
     <!-- Extra CSS specific to individual pages -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="{% static 'css/customer.css' %}">
 {% endblock %}
-{% comment %} {% include "layouts/header.html" %} {% endcomment %}
+
 {% block content %}
   <!-- main content goes here -->
  
-  <body>
+
+<body>
+    <div class="container-fluid">
+      <div class="row">
+                    
+        {% include 'sidebar.html' %}
+        
+{%  block content1 %}
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 overflow-auto">
+    <h2>Power BI Reports</h2>
+
+<iframe
+title="Analysis"
+width="1140"
+height="541.25"
+src="https://app.powerbi.com/reportEmbed?reportId=9018f5ec-28be-4d73-9075-13da58746beb&autoAuth=true&ctid=d783a3ac-1d29-4e31-8dba-5902c41a5774"
+frameborder="0"
+allowFullScreen="true">
+</iframe> 
+</div>
+</main>
+{% endblock %}
 
 
 
-   <iframe
-    title="Analysis"
-    width="1140"
-    height="541.25"
-    src="https://app.powerbi.com/reportEmbed?reportId=9018f5ec-28be-4d73-9075-13da58746beb&autoAuth=true&ctid=d783a3ac-1d29-4e31-8dba-5902c41a5774"
-    frameborder="0"
-    allowFullScreen="true">
-  </iframe> 
-    <canvas id="myChart"></canvas>
 
-    <script>
-        var chartData = JSON.parse('{{ chart_data|safe }}');
-        var ctx = document.getElementById('myChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: chartData.labels,
-                datasets: [{
-                    label: 'Sales',
-                    data: chartData.values,
-                    backgroundColor: 'rgba(54, 162, 235, 0.5)'
-                }]
-            }
-        });
-    </script>
-</body>
 {% endblock %}
   
 {% block extra_js %}
