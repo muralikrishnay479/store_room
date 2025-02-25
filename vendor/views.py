@@ -98,7 +98,7 @@ def products(request):
 @login_required
 def orders(request):
     # Fetch orders where the logged-in user is the vendor
-    orders = store_models.Order.objects.filter(vendors=request.user, payment_status='Paid')
+    orders = store_models.Order.objects.filter(vendors=request.user).all()
 
     # Filter by order status
     status_filter = request.GET.get('status')
@@ -282,7 +282,7 @@ def update_replay(request, id):
 
 @login_required
 def notis(request):
-    notis = vendor_models.Notifications.objects.filter(user=request.user, seen=False)
+    notis = vendor_models.Notifications.objects.filter(user=request.user).all()
     context = {
         "notis": notis,
     }
@@ -512,7 +512,7 @@ def delete_product(request, product_id):
     return redirect('vendor:products')
 
 def get_product_data(request):
-    products = store_models.Product.objects.all()
+    products = store_models.Product.objects.filter(vendor=request.user).all()
     data = {
         "labels": [product.name for product in products],
         "quantities": [product.stock for product in products],
@@ -536,7 +536,7 @@ def get_review_data(request):
 
 from collections import Counter
 def get_order_payment_data(request):
-    orders = store_models.Order.objects.all()
+    orders = store_models.Order.objects.filter(vendors=request.user).all()
 
     # Count order statuses
     order_status_counts = dict(Counter(orders.values_list('order_status', flat=True)))
@@ -562,7 +562,7 @@ def get_sales_data(request):
     try:
         # Daily Sales Data
         daily_sales = (
-            store_models.Order.objects
+            store_models.Order.objects.filter(vendors=request.user).all()
             .values('date__year', 'date__month', 'date__day')
             .annotate(total=Sum('total'))
             .order_by('date__year', 'date__month', 'date__day')
@@ -570,7 +570,7 @@ def get_sales_data(request):
 
         # Monthly Sales Data
         monthly_sales = (
-            store_models.Order.objects
+            store_models.Order.objects.filter(vendors=request.user).all()
             .values('date__year', 'date__month')
             .annotate(total=Sum('total'))
             .order_by('date__year', 'date__month')

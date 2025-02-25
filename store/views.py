@@ -440,15 +440,38 @@ def razorpay_payment_verify(request, order_id):
         }
 
         try:
-            # Verify payment signature
             razorpay_client.utility.verify_payment_signature(params_dict)
 
-            # Update order status
             if order.payment_status == "Processing":
                 order.payment_status = "Paid"
                 order.payment_method = payment_method
                 order.save()
                 clear_cart_items(request)
+                
+                customer_merge_data = {
+                'order' : order,
+                'order_items' : order.order_items(),
+                }
+                
+                # Create notification for the customer
+                customer_models.Notifications.objects.create(
+                    type="New Order",
+                    user=request.user,
+                )
+                
+                # Create notifications for vendors
+                for item in order.order_items():
+                    vendor_merge_data = {
+                    'item' : item,
+                    }
+                    vendor_models.Notifications.objects.create(
+                    type="New Order",
+                    user=item.vendor,
+                    order=item,
+                    )
+                    
+                    
+               
                 return redirect(reverse('store:payment_status', args=[order.order_id]) + "?payment_status=paid")
             else:
                 return redirect(reverse('store:payment_status', args=[order.order_id]) + "?payment_status=failed")
