@@ -23,35 +23,85 @@ from django.db.models import Count, Sum
 from django.db.models.functions import TruncMonth
 from store import models as store_models
 
-def all_data_for_powerbi(request):
-    # Fetch all products
-    products = store_models.Product.objects.all().values(
-        'id', 'name', 'price', 'stock', 'status', 'date', 'vendor__username'
-    )
 
-    # Fetch all orders
-    orders = store_models.OrderItem.objects.all().values(
-        'order__order_id', 'product__name', 'qty', 'price', 'total', 'date', 'vendor__username'
-    )
+from django.http import JsonResponse
+from django.db.models import Count, Sum
+from django.db.models.functions import TruncMonth
+from store import models as store_models
+from userauths.models import User
 
-    # Fetch monthly sales data for all vendors
-    monthly_sales = (
-        store_models.OrderItem.objects.annotate(month=TruncMonth('date'))
-        .values('month', 'vendor__username')
-        .annotate(total_sales=Sum('total'))
-        .order_by('-month')
-    )
+from django.http import JsonResponse
+from django.db.models import Count, Sum
+from django.db.models.functions import TruncMonth
+from store import models as store_models
+from userauths.models import User, Profile
 
-    # Fetch total sales and total products
-    total_sales = store_models.OrderItem.objects.aggregate(total_sales=Sum('total'))['total_sales'] or 0
-    total_products = store_models.Product.objects.count()
+def all_data_for_powerbi(request, user_name=None):
+    # If user_name (or email) is provided, filter data for that specific vendor
+    if user_name:
+        try:
+            # Check if user_name is an email or username
+            if '@' in user_name:
+                user = User.objects.get(email=user_name)
+            else:
+                user = User.objects.get(username=user_name)
 
-    # Fetch all reviews
+            # Check if the user is a vendor via Profile model
+            profile = Profile.objects.get(user=user, user_Type="Vendor")
+            vendor = user  # The user object is the vendor
+
+        except (User.DoesNotExist, Profile.DoesNotExist):
+            return JsonResponse({"error": "Vendor not found"}, status=404)
+
+        # Fetch products for the specific vendor
+        products = store_models.Product.objects.filter(vendor=vendor).values(
+            'id', 'name', 'price', 'stock', 'status', 'date'
+        )
+
+        # Fetch orders for the specific vendor
+        orders = store_models.OrderItem.objects.filter(vendor=vendor).values(
+            'order__order_id', 'product__name', 'qty', 'price', 'total', 'date'
+        )
+
+        # Fetch monthly sales data for the specific vendor
+        monthly_sales = (
+            store_models.OrderItem.objects.filter(vendor=vendor)
+            .annotate(month=TruncMonth('date'))        
+            .values('month')
+            .annotate(total_sales=Sum('total'))
+            .order_by('-month')
+        )
+
+        # Fetch total sales and total products for the specific vendor
+        total_sales = store_models.OrderItem.objects.filter(vendor=vendor).aggregate(total_sales=Sum('total'))['total_sales'] or 0
+        total_products = store_models.Product.objects.filter(vendor=vendor).count()
+
+    else:
+        # If no user_name is provided, fetch all data
+        products = store_models.Product.objects.all().values(
+            'id', 'name', 'price', 'stock', 'status', 'date', 'vendor__username'
+        )
+
+        orders = store_models.OrderItem.objects.all().values(
+            'order__order_id', 'product__name', 'qty', 'price', 'total', 'date', 'vendor__username'
+        )
+
+        monthly_sales = (
+            store_models.OrderItem.objects.annotate(month=TruncMonth('date'))
+            .values('month', 'vendor__username')
+            .annotate(total_sales=Sum('total'))
+            .order_by('-month')
+        )
+
+        total_sales = store_models.OrderItem.objects.aggregate(total_sales=Sum('total'))['total_sales'] or 0
+        total_products = store_models.Product.objects.count()
+
+    # Fetch all reviews (optional: filter by vendor if needed)
     reviews = store_models.Review.objects.all().values(
         'user__username', 'product__name', 'rating', 'review', 'date'
     )
 
-    # Fetch all coupons
+    # Fetch all coupons (optional: filter by vendor if needed)
     coupons = store_models.Coupon.objects.all().values(
         'vendor__username', 'code', 'discount'
     )
@@ -67,55 +117,8 @@ def all_data_for_powerbi(request):
         "coupons": list(coupons),
     }
 
-    return JsonResponse(data,  safe=False)
-
-
-@login_required
-def vendor_data_for_powerbi(request):
-    # Ensure the user is a vendor
-    # if not request.user.is_vendor:
-    #     return JsonResponse({"error": "Unauthorized access"}, status=403)
-
-    vendor = request.user
-
-    # Fetch vendor's products
-    products = store_models.Product.objects.filter(vendor=vendor).values(
-        'id', 'name', 'price', 'stock', 'status', 'date'
-    )
-
-    # Fetch vendor's orders
-    orders = store_models.OrderItem.objects.filter(vendor=vendor).values(
-        'order__order_id', 'product__name', 'qty', 'price', 'total', 'date'
-    )
-
-    # Fetch monthly sales data
-    monthly_sales = (
-        store_models.OrderItem.objects.filter(vendor=vendor)
-        .annotate(month=TruncMonth('date'))
-        .values('month')
-        .annotate(total_sales=Sum('total'))
-        .order_by('-month')
-    )
-
-    # Fetch total sales and total products
-    total_sales = store_models.OrderItem.objects.filter(vendor=vendor).aggregate(total_sales=Sum('total'))['total_sales'] or 0
-    total_products = store_models.Product.objects.filter(vendor=vendor).count()
-
-    # Prepare the data to be sent to Power BI
-    data = {
-        "vendor": {
-            "id": vendor.id,
-            "username": vendor.username,
-            "email": vendor.email,
-        },
-        "products": list(products),
-        "orders": list(orders),
-        "monthly_sales": list(monthly_sales),
-        "total_sales": total_sales,
-        "total_products": total_products,
-    }
-
     return JsonResponse(data)
+
 # Function to get monthly sales data
 def get_monthly_sales(user):
     monthly_sales = (

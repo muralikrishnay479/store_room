@@ -50,7 +50,8 @@ urlpatterns = [
   path('get_sales_data/', views.get_sales_data, name='get_sales_data'),
   
   
-  path('api/vendor-data/', views.vendor_data_for_powerbi, name='vendor_data_for_powerbi'),
+
   path('api/all-data/', views.all_data_for_powerbi, name='all_data_for_powerbi'),
+  path('api/all-data/<str:user_name>/', views.all_data_for_powerbi, name='all_data_for_powerbi_by_vendor'),
 
 ]
