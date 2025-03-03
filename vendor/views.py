@@ -16,6 +16,60 @@ from django.db.models.functions import TruncMonth
 from store import models as store_models
 from userauths.models import User
 
+
+
+from django.http import JsonResponse
+from django.db.models import Count, Sum
+from django.db.models.functions import TruncMonth
+from store import models as store_models
+
+def all_data_for_powerbi(request):
+    # Fetch all products
+    products = store_models.Product.objects.all().values(
+        'id', 'name', 'price', 'stock', 'status', 'date', 'vendor__username'
+    )
+
+    # Fetch all orders
+    orders = store_models.OrderItem.objects.all().values(
+        'order__order_id', 'product__name', 'qty', 'price', 'total', 'date', 'vendor__username'
+    )
+
+    # Fetch monthly sales data for all vendors
+    monthly_sales = (
+        store_models.OrderItem.objects.annotate(month=TruncMonth('date'))
+        .values('month', 'vendor__username')
+        .annotate(total_sales=Sum('total'))
+        .order_by('-month')
+    )
+
+    # Fetch total sales and total products
+    total_sales = store_models.OrderItem.objects.aggregate(total_sales=Sum('total'))['total_sales'] or 0
+    total_products = store_models.Product.objects.count()
+
+    # Fetch all reviews
+    reviews = store_models.Review.objects.all().values(
+        'user__username', 'product__name', 'rating', 'review', 'date'
+    )
+
+    # Fetch all coupons
+    coupons = store_models.Coupon.objects.all().values(
+        'vendor__username', 'code', 'discount'
+    )
+
+    # Prepare the data to be sent to Power BI
+    data = {
+        "products": list(products),
+        "orders": list(orders),
+        "monthly_sales": list(monthly_sales),
+        "total_sales": total_sales,
+        "total_products": total_products,
+        "reviews": list(reviews),
+        "coupons": list(coupons),
+    }
+
+    return JsonResponse(data)
+
+
 @login_required
 def vendor_data_for_powerbi(request):
     # Ensure the user is a vendor

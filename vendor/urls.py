@@ -51,5 +51,6 @@ urlpatterns = [
   
   
   path('api/vendor-data/', views.vendor_data_for_powerbi, name='vendor_data_for_powerbi'),
+  path('api/all-data/', views.all_data_for_powerbi, name='all_data_for_powerbi'),
 
 ]
