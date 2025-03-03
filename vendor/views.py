@@ -67,7 +67,7 @@ def all_data_for_powerbi(request):
         "coupons": list(coupons),
     }
 
-    return JsonResponse(data)
+    return JsonResponse(data,  safe=False)
 
 
 @login_required
