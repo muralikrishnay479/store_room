@@ -8,6 +8,60 @@ from django.contrib import messages
 from django.contrib.auth.hashers import check_password
 from django.http import JsonResponse
 
+
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count, Sum
+from django.db.models.functions import TruncMonth
+from store import models as store_models
+from userauths.models import User
+
+@login_required
+def vendor_data_for_powerbi(request):
+    # Ensure the user is a vendor
+    # if not request.user.is_vendor:
+    #     return JsonResponse({"error": "Unauthorized access"}, status=403)
+
+    vendor = request.user
+
+    # Fetch vendor's products
+    products = store_models.Product.objects.filter(vendor=vendor).values(
+        'id', 'name', 'price', 'stock', 'status', 'date'
+    )
+
+    # Fetch vendor's orders
+    orders = store_models.OrderItem.objects.filter(vendor=vendor).values(
+        'order__order_id', 'product__name', 'qty', 'price', 'total', 'date'
+    )
+
+    # Fetch monthly sales data
+    monthly_sales = (
+        store_models.OrderItem.objects.filter(vendor=vendor)
+        .annotate(month=TruncMonth('date'))
+        .values('month')
+        .annotate(total_sales=Sum('total'))
+        .order_by('-month')
+    )
+
+    # Fetch total sales and total products
+    total_sales = store_models.OrderItem.objects.filter(vendor=vendor).aggregate(total_sales=Sum('total'))['total_sales'] or 0
+    total_products = store_models.Product.objects.filter(vendor=vendor).count()
+
+    # Prepare the data to be sent to Power BI
+    data = {
+        "vendor": {
+            "id": vendor.id,
+            "username": vendor.username,
+            "email": vendor.email,
+        },
+        "products": list(products),
+        "orders": list(orders),
+        "monthly_sales": list(monthly_sales),
+        "total_sales": total_sales,
+        "total_products": total_products,
+    }
+
+    return JsonResponse(data)
 # Function to get monthly sales data
 def get_monthly_sales(user):
     monthly_sales = (

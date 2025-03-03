@@ -48,5 +48,8 @@ urlpatterns = [
   path('get_review_data/', views.get_review_data, name='get_review_data'),
   path('get_order_payment_data/', views.get_order_payment_data, name='get_order_payment_data'),
   path('get_sales_data/', views.get_sales_data, name='get_sales_data'),
+  
+  
+  path('api/vendor-data/', views.vendor_data_for_powerbi, name='vendor_data_for_powerbi'),
 
 ]

@@ -483,3 +483,8 @@ def razorpay_payment_verify(request, order_id):
             return redirect(reverse('store:payment_status', args=[order.order_id]) + "?payment_status=failed")
 
     return redirect(reverse('store:payment_status', args=[order.order_id]) + "?payment_status=failed")
+
+
+
+def shop(request):
+    return render(request, 'shop.html')
